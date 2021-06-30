@@ -90,12 +90,6 @@
             <version>1.1.0</version>
         </dependency>
 
-<!--        <dependency>-->
-<!--            <groupId>com.yufan</groupId>-->
-<!--            <artifactId>store-utils</artifactId>-->
-<!--            <version>${yufan.version}</version>-->
-<!--        </dependency>-->
-
         <!-- https://mvnrepository.com/artifact/net.oschina.zcx7878/fastdfs-client-java -->
         <!-- fastdfs-client-java -->
         <dependency>
@@ -134,6 +128,14 @@
                             <artifactId>lombok</artifactId>
                         </exclude>
                     </excludes>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>1.8</source>
+                    <target>1.8</target>
                 </configuration>
             </plugin>
         </plugins>
