@@ -8,7 +8,9 @@ import com.yufan.common.service.ServiceFactory;
 import com.yufan.utils.ResultCode;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.servlet.ServletInputStream;
 import javax.servlet.http.HttpServletRequest;
@@ -27,6 +29,7 @@ import static com.yufan.common.bean.ResponeUtil.packagMsg;
  */
 @Controller
 @RequestMapping(value = "/info")
+@CrossOrigin(originPatterns = "*", methods = {RequestMethod.GET, RequestMethod.POST})
 public class InfoController {
 
     private Logger LOG = Logger.getLogger(InfoController.class);
@@ -37,6 +40,7 @@ public class InfoController {
      * @param request
      * @param response
      */
+    @CrossOrigin
     @RequestMapping(value = "kc")
     public void sysKC(HttpServletRequest request, HttpServletResponse response) {
         String result = "";
