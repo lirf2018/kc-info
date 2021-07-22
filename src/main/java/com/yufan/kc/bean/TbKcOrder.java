@@ -36,6 +36,7 @@ public class TbKcOrder {
     private Integer personCount;
     private String tableName;
     private Timestamp payDate;
+    private BigDecimal realInpayPrice;
 
     @GeneratedValue(strategy=GenerationType.IDENTITY)
     @Id
@@ -268,6 +269,16 @@ public class TbKcOrder {
         this.payDate = payDate;
     }
 
+    @Basic
+    @Column(name = "real_inpay_price", nullable = true)
+    public BigDecimal getRealInpayPrice() {
+        return realInpayPrice;
+    }
+
+    public void setRealInpayPrice(BigDecimal realInpayPrice) {
+        this.realInpayPrice = realInpayPrice;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -295,11 +306,12 @@ public class TbKcOrder {
                 Objects.equals(serverName, order.serverName) &&
                 Objects.equals(personCount, order.personCount) &&
                 Objects.equals(tableName, order.tableName) &&
-                Objects.equals(payDate, order.payDate);
+                Objects.equals(payDate, order.payDate) &&
+                Objects.equals(realInpayPrice, order.realInpayPrice);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderId, orderNum, userId, goodsCount, orderPrice, realPrice, discountsTicketPrice, discountsMemberPrice, discountsPrice, discountsRemark, payMethod, consumeCount, orderStatus, createTime, remark, userPhone, memberNo, orderSource, lastUpdateTime, serverName, personCount, tableName, payDate);
+        return Objects.hash(orderId, orderNum, userId, goodsCount, orderPrice, realPrice, discountsTicketPrice, discountsMemberPrice, discountsPrice, discountsRemark, payMethod, consumeCount, orderStatus, createTime, remark, userPhone, memberNo, orderSource, lastUpdateTime, serverName, personCount, tableName, payDate,realInpayPrice);
     }
 }

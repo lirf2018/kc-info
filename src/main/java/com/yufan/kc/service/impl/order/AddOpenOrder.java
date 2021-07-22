@@ -239,6 +239,7 @@ public class AddOpenOrder implements IResultOut {
             order.setServerName(serverName);
             order.setPersonCount(personCount);
             order.setTableName(tableName);
+            order.setRealInpayPrice(BigDecimal.ZERO);
             openOrderDao.saveObj(order);
             detail.setOrderId(order.getOrderId());
             openOrderDao.saveObj(detail);

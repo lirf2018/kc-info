@@ -12,6 +12,8 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 import static com.yufan.common.bean.ResponeUtil.packagMsg;
 
 /**
@@ -45,6 +47,8 @@ public class ResetOrderPay implements IResultOut {
             }
             order.setOrderStatus(new Byte(String.valueOf(Constants.ORDER_STATUS_0)));
             order.setPayMethod(null);
+            order.setPayDate(null);
+            order.setRealInpayPrice(BigDecimal.ZERO);
             openOrderDao.updateObj(order);
             return packagMsg(ResultCode.OK.getResp_code(), dataJson);
         } catch (Exception e) {

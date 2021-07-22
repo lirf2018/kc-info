@@ -30,6 +30,7 @@ public class KcOrderDaoImpl implements KcOrderDao {
         sql.append(" select kc.order_id,kc.order_num,kc.user_id,kc.goods_count,kc.order_price,kc.real_price,kc.discounts_ticket_price,kc.discounts_member_price,kc.discounts_price,kc.discounts_remark, ");
         sql.append(" kc.pay_method,kc.consume_count,kc.order_status,DATE_FORMAT(kc.create_time,'%Y-%m-%d %T') as create_time,kc.remark,kc.user_phone,kc.member_no,kc.order_source,kc.last_update_time, ");
         sql.append(" kc.server_name,kc.person_count,kc.table_name,p1.param_value as order_status_name,p2.param_value as  pay_method_name,false as _expanded ");
+        sql.append(" ,kc.real_inpay_price ");
         sql.append(" from tb_kc_order kc  ");
         sql.append(" LEFT JOIN tb_param p1 on p1.param_code='order_status' and p1.param_key=kc.order_status ");
         sql.append(" LEFT JOIN tb_param p2 on p2.param_code='pay_method' and p2.param_key=kc.pay_method ");

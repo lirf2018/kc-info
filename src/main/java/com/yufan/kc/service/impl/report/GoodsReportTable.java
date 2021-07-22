@@ -46,11 +46,15 @@ public class GoodsReportTable implements IResultOut {
             List<Map<String, Object>> countList = reportDao.loadGoodsReportCount(conditionCommon);
             Map<String, BigDecimal> countMap = new HashMap<>();
             countMap.put("sale_price_all", BigDecimal.ZERO);
-            countMap.put("income_price_all",BigDecimal.ZERO);
+            countMap.put("income_price_all", BigDecimal.ZERO);
             countMap.put("get_price_all", BigDecimal.ZERO);
             if (CollectionUtils.isNotEmpty(countList)) {
-                BigDecimal salePriceAll = new BigDecimal(countList.get(0).get("sale_price_all").toString());
-                BigDecimal incomePriceAll = new BigDecimal(countList.get(0).get("income_price_all").toString());
+                BigDecimal salePriceAll = BigDecimal.ZERO;
+                BigDecimal incomePriceAll = BigDecimal.ZERO;
+                for (int i = 0; i < countList.size(); i++) {
+                    salePriceAll = salePriceAll.add(new BigDecimal(countList.get(i).get("sale_price_all").toString()));
+                    incomePriceAll = incomePriceAll.add(new BigDecimal(countList.get(i).get("income_price_all").toString()));
+                }
                 BigDecimal getPriceAll = salePriceAll.subtract(incomePriceAll);
                 countMap.put("sale_price_all", salePriceAll);
                 countMap.put("income_price_all", incomePriceAll);

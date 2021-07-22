@@ -12,6 +12,7 @@ import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.sql.Timestamp;
 import java.util.Date;
 
@@ -38,6 +39,7 @@ public class UpdateOrderPayStatus implements IResultOut {
             Integer orderId = data.getInteger("order_id");
             Integer status = data.getInteger("order_status");
             Integer payMethod = data.getInteger("pay_method");
+            BigDecimal payPrice = data.getBigDecimal("pay_price");
             //
             TbKcOrder order = openOrderDao.loadOrder(orderId);
             if (null == order) {
@@ -48,6 +50,7 @@ public class UpdateOrderPayStatus implements IResultOut {
             if (null != payMethod) {
                 order.setPayMethod(payMethod.byteValue());
             }
+            order.setRealInpayPrice(payPrice);
             order.setPayDate(new Timestamp(new Date().getTime()));
             openOrderDao.updateObj(order);
             return packagMsg(ResultCode.OK.getResp_code(), dataJson);
@@ -64,7 +67,9 @@ public class UpdateOrderPayStatus implements IResultOut {
         try {
             Integer orderId = data.getInteger("order_id");
             Integer status = data.getInteger("order_status");
-            if (null == orderId || orderId == 0 || null == status || status == 0) {
+            Integer payMethod = data.getInteger("pay_method");
+            BigDecimal payPrice = data.getBigDecimal("pay_price");
+            if (null == orderId || orderId == 0 || null == status || status == 0 || payPrice == null || payMethod == null) {
                 return false;
             }
             return true;

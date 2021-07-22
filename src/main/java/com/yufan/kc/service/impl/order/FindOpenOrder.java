@@ -88,6 +88,7 @@ public class FindOpenOrder implements IResultOut {
                 orderMap.put("orderStatusName", Constants.MAP_NAME.get("orderStatus" + orderInfo.get("orderStatus")));
                 orderMap.put("payMethodName", Constants.MAP_NAME.get("payType" + orderInfo.get("payMethod")));
                 orderMap.put("lastUpdateTime", orderInfo.get("lastUpdateTime"));
+                orderMap.put("realInpayPrice",orderInfo.get("realInpayPrice"));
                 orderMap.put("style", "mouse-out-goods-ul");
                 List<Map<String, Object>> orderDetailList = new ArrayList<>();
                 for (int i = 0; i < list.size(); i++) {

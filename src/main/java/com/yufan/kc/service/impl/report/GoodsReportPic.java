@@ -18,7 +18,7 @@ import static com.yufan.common.bean.ResponeUtil.packagMsg;
  * 创建时间:  2020/12/26 22:40
  * 功能介绍:
  */
-@Service("goods_report_pic")
+//@Service("goods_report_pic")
 public class GoodsReportPic implements IResultOut {
 
     private Logger LOG = Logger.getLogger(GoodsReportPic.class);

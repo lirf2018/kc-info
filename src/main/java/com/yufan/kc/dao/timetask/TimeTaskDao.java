@@ -17,11 +17,9 @@ public interface TimeTaskDao {
     void updateGoodsStore(String goodsCode);
 
     /**
-     * 删除商品报表
-     *
-     * @param month
+     * 删除商品报表 （先清空商品报表数据）
      */
-    void deleteGoodsSaleReport(String month);
+    void deleteGoodsSaleReport();
 
     /**
      * 商品统计查询订单日期（生成订单月份）
@@ -58,10 +56,18 @@ public interface TimeTaskDao {
 
     /**
      * 订单统计(统计进货总额)
+     *
      * @param year
      */
     void goodsInPriceAllOrder(String year);
 
+    ///////////////////////////////////////
 
+    /**
+     * 初始化商品入库数据
+     * @param year
+     * @param month
+     */
+    void initGoodsReportStoreData(String year, String month);
 
 }

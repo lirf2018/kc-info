@@ -99,13 +99,19 @@ public class StoreInOutDaoImpl implements StoreInOutDao {
 
     @Override
     public void deleteStoreInOut(int id) {
-        String sql = " update tb_store_inout set status=2 where income_id = ? ";
+        String sql = " update tb_store_inout set last_update_time=now(), status=2,last_update_time=now() where income_id = ? ";
         iGeneralDao.executeUpdateForSQL(sql, id);
     }
 
     @Override
     public void updateStoreInOut(TbStoreInout storeInout) {
         iGeneralDao.saveOrUpdate(storeInout);
+    }
+
+    @Override
+    public void updateStoreInOutSync(TbStoreInout storeInout) {
+        String sql = " update tb_store_inout set last_update_time=now(),goods_name=?,goods_unit=?,unit_count=? where goods_code=? ";
+        iGeneralDao.executeUpdateForSQL(sql, storeInout.getGoodsName(), storeInout.getGoodsUnit(), storeInout.getUnitCount(), storeInout.getGoodsCode());
     }
 
     @Override
@@ -124,38 +130,50 @@ public class StoreInOutDaoImpl implements StoreInOutDao {
 
     @Override
     public void batchSureStore(String incomeIds, Integer incomeType) {
-        if(incomeIds.endsWith(",")){
-            incomeIds = incomeIds.substring(0,incomeIds.length()-1);
+        if (incomeIds.endsWith(",")) {
+            incomeIds = incomeIds.substring(0, incomeIds.length() - 1);
         }
         StringBuffer sql = new StringBuffer();
         if (incomeType == 0) {
             // 出库
-            sql.append(" update tb_store_inout set status=1, income_type=").append(incomeType).append(",out_time=now() where income_id  in (").append(incomeIds).append(") ");
+            sql.append(" update tb_store_inout set last_update_time=now(), status=1, income_type=").append(incomeType).append(",out_time=now() where income_id  in (").append(incomeIds).append(") ");
         } else {
             // 入库
-            sql.append(" update tb_store_inout set status=1, income_type=").append(incomeType).append(",in_time=now() where income_id  in (").append(incomeIds).append(") ");
+            sql.append(" update tb_store_inout set last_update_time=now(), status=1, income_type=").append(incomeType).append(",in_time=now() where income_id  in (").append(incomeIds).append(") ");
         }
         iGeneralDao.executeUpdateForSQL(sql.toString());
     }
 
     @Override
     public void updateStoreMatching(String goodsCode, int matching) {
-        String sql = " update tb_store_inout set is_matching=? where goods_code=? ";
+        String sql = " update tb_store_inout set last_update_time=now(), is_matching=? where goods_code=? ";
+        iGeneralDao.executeUpdateForSQL(sql, matching, goodsCode);
+    }
+
+    @Override
+    public void updateStoreMatching(int incomeId, int matching) {
+        String sql1 = " select goods_code,income_id from tb_store_inout where income_id=? ";
+        List<Map<String, Object>> list = iGeneralDao.getBySQLListMap(sql1, incomeId);
+        if (CollectionUtils.isEmpty(list)) {
+            return;
+        }
+        String goodsCode = list.get(0).get("goods_code").toString();
+        String sql = " update tb_store_inout set last_update_time=now(),is_matching=? where goods_code=? ";
         iGeneralDao.executeUpdateForSQL(sql, matching, goodsCode);
     }
 
     @Override
     public void updateStoreMatching2(String goodsIds, int matching) {
-        if(goodsIds.endsWith(",")){
-            goodsIds = goodsIds.substring(0,goodsIds.length()-1);
+        if (goodsIds.endsWith(",")) {
+            goodsIds = goodsIds.substring(0, goodsIds.length() - 1);
         }
-        String sql = " update tb_store_inout set is_matching=" + matching + " where goods_code in (select goods_code from tb_kc_goods where goods_id in (" + goodsIds + ")) ";
+        String sql = " update tb_store_inout set last_update_time=now(), is_matching=" + matching + " where goods_code in (select goods_code from tb_kc_goods where goods_id in (" + goodsIds + ")) ";
         iGeneralDao.executeUpdateForSQL(sql);
     }
 
     @Override
     public Map<String, Object> findOneStoreByGoodsCode(String goodsCode) {
-        String sql = " select ins.goods_unit,ins.unit_count from tb_store_inout ins where ins.goods_code=? ";
+        String sql = " select ins.goods_unit,ins.unit_count,goods_name from tb_store_inout ins where ins.goods_code=? ";
         List<Map<String, Object>> list = iGeneralDao.getBySQLListMap(sql, goodsCode);
         if (!CollectionUtils.isEmpty(list)) {
             return list.get(0);
@@ -177,6 +195,7 @@ public class StoreInOutDaoImpl implements StoreInOutDao {
     public void deleteGoods(int inoutId) {
         String sql = " delete from tb_kc_goods where goods_code = (select goods_code from tb_store_inout where income_id=" + inoutId + ") ";
         iGeneralDao.executeUpdateForSQL(sql);
+        updateStoreMatching(inoutId, 0);
     }
 
     @Override

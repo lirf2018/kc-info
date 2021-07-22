@@ -21,6 +21,7 @@ public interface StoreInOutDao {
     void deleteStoreInOut(int id);
 
     void updateStoreInOut(TbStoreInout storeInout);
+    void updateStoreInOutSync(TbStoreInout storeInout);
 
     Map<String, Object> findStoreInOutInfo(ConditionCommon conditionCommon);
 
@@ -29,6 +30,7 @@ public interface StoreInOutDao {
     void batchSureStore(String incomeIds, Integer incomeType);
 
     void updateStoreMatching(String goodsCode, int matching);
+    void updateStoreMatching(int incomeId, int matching);
     void updateStoreMatching2(String goodsIds, int matching);
 
     Map<String, Object> findOneStoreByGoodsCode(String goodsCode);

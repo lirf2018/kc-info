@@ -64,17 +64,6 @@ public class AddStoreInOut implements IResultOut {
                 Date date = DatetimeUtil.convertStrToDate(DatetimeUtil.timeStamp2Date(storeInout.getMakeDay().getTime(), null));
                 storeInout.setEffectToTime(new Timestamp(DatetimeUtil.addDays(date, storeInout.getEffectDay()).getTime()));
             }
-
-            // 查询相同商品条形码的商品是否是相同规格和规格数据
-            Map<String, Object> checkMap = storeInOutDao.findOneStoreByGoodsCode(storeInout.getGoodsCode());
-            if (null == warning && null != checkMap) {
-                String goodsUnit = String.valueOf(checkMap.get("goods_unit"));
-                int unitCount = Integer.parseInt(String.valueOf(checkMap.get("unit_count")));
-                if (!goodsUnit.equals(storeInout.getGoodsUnit()) || unitCount != storeInout.getUnitCount()) {
-                    return packagMsg(ResultCode.THE_SAME_GOODS_WARING.getResp_code(), dataJson);
-                }
-            }
-
             if (StringUtils.isEmpty(storeInout.getShopCode())) {
                 String code = generateShopCode.generate(Constants.GENERATE_TYPE, 1);
                 code = Constants.SHOP_CODE_MARK + code;
@@ -83,12 +72,23 @@ public class AddStoreInOut implements IResultOut {
                 storeInout.setShopCodeDate(getShopCodeDate(code));
             }
             if (storeInout.getIncomeId() > 0) {
-                // 如果商品对应库存数据信息的商品码修改，则需要判断原对应商品是否只有一条，如果只有一条，也要做删除处理
-                storeInOutDao.deleteGoods(storeInout.getIncomeId());
                 storeInOutDao.updateStoreInOut(storeInout);
-
+                //同步更新相同商品码的库存商品（商品名称，商品规格，规格数）
+                storeInOutDao.updateStoreInOutSync(storeInout);
+                // 删除对应商品码对应商品表数据
+                storeInOutDao.deleteGoods(storeInout.getIncomeId());
             } else {
-                // 判断入库商品是否已匹配
+                // 查询相同商品条形码的商品是否是相同规格和规格数和商品名称
+                Map<String, Object> checkMap = storeInOutDao.findOneStoreByGoodsCode(storeInout.getGoodsCode());
+                if (null == warning && null != checkMap) {
+                    String goodsName = String.valueOf(checkMap.get("goods_name"));// 商品名称
+                    String goodsUnit = String.valueOf(checkMap.get("goods_unit"));// 商品单位
+                    int unitCount = Integer.parseInt(String.valueOf(checkMap.get("unit_count")));// 单位数量
+                    if (!goodsUnit.equals(storeInout.getGoodsUnit()) || !goodsName.equals(storeInout.getGoodsName()) || unitCount != storeInout.getUnitCount()) {
+                        return packagMsg(ResultCode.THE_SAME_GOODS_WARING.getResp_code(), dataJson);
+                    }
+                }
+                // 判断入库商品是否已匹配(入库商品是否已添加到商品表中)
                 boolean flag = storeInOutDao.checkGoodsExist(storeInout.getGoodsCode());
                 Integer isMatching = flag ? 1 : 0;
                 if (store == 1) {

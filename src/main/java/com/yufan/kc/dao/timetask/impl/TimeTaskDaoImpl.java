@@ -59,17 +59,16 @@ public class TimeTaskDaoImpl implements TimeTaskDao {
     /**
      * 删除商品报表
      *
-     * @param month
      */
     @Override
-    public void deleteGoodsSaleReport(String month) {
+    public void deleteGoodsSaleReport() {
         String sql = " delete from tb_goods_sale_month_report  ";
         iGeneralDao.executeUpdateForSQL(sql);
     }
 
     @Override
     public List<Map<String, Object>> findOrderPayDateMonth() {
-        String sql = " select DATE_FORMAT(o.pay_date,'%Y-%m') as pay_month from tb_kc_order o where o.order_id>0 GROUP BY DATE_FORMAT(o.pay_date,'%Y-%m') ";
+        String sql = " select DATE_FORMAT(o.pay_date,'%Y-%m') as pay_month from tb_kc_order o where o.order_status>0 and o.pay_date is not null GROUP BY DATE_FORMAT(o.pay_date,'%Y-%m') ";
         return iGeneralDao.getBySQLListMap(sql);
     }
 
@@ -136,5 +135,12 @@ public class TimeTaskDaoImpl implements TimeTaskDao {
 
 
         iGeneralDao.executeUpdateForSQL(sql.toString());
+    }
+
+    @Override
+    public void initGoodsReportStoreData(String year, String month) {
+        // 查询时间的入库数据
+
+
     }
 }
