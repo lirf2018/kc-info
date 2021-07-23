@@ -15,59 +15,69 @@ public interface TimeTaskDao {
      * 更新商品库存
      */
     void updateGoodsStore(String goodsCode);
+    ////////////////开始////商品报表///////////////////
 
     /**
-     * 删除商品报表 （先清空商品报表数据）
-     */
-    void deleteGoodsSaleReport();
-
-    /**
-     * 商品统计查询订单日期（生成订单月份）
+     * 删除条件数按 year 和 month
      *
+     * @param year
+     * @param month
+     */
+    void delGoodsReportData(String year, String month);
+
+
+    /**
+     * 查询订单销售数按 year 和 month
+     *
+     * @param year
+     * @param month
      * @return
      */
-    List<Map<String, Object>> findOrderPayDateMonth();
+    List<Map<String, Object>> findGoodsOrderSaleData(String year, String month);
 
     /**
-     * 商品统计(已生成订单的商品月销售总额)生成查询月的商品销售金额
-     */
-    void goodsSaleReport(String month);
-
-    /**
-     * 商品统计(商品月进货总额)按月查询商品进货总额
+     * 查询进货数按 year 和 month
      *
+     * @param year
      * @param month
+     * @return
      */
-    void goodsStoreInPriceAll(String month);
+    List<Map<String, Object>> findStoreInComeData(String year, String month);
+    ////////////////结束////商品报表///////////////////
+
+
+    ////////////////开始////订单报表///////////////////
 
     /**
-     * 订单统计删除和初始化订单报表（本年度）
+     * 删除条件数按 year 和 month
      *
-     * @param year
-     */
-    void deleteAndInitOrderReport(String year);
-
-    /**
-     * 订单统计(统计收入总额)
-     *
-     * @param year
-     */
-    void orderSaleReport(String year);
-
-    /**
-     * 订单统计(统计进货总额)
-     *
-     * @param year
-     */
-    void goodsInPriceAllOrder(String year);
-
-    ///////////////////////////////////////
-
-    /**
-     * 初始化商品入库数据
      * @param year
      * @param month
      */
-    void initGoodsReportStoreData(String year, String month);
+    void delOrderReportData(String year, String month);
+
+
+    /**
+     * 查询订单销售数按 year 和 month
+     *
+     * @param year
+     * @param month
+     * @return
+     */
+    List<Map<String, Object>> findOrderSaleData(String year, String month);
+
+    /**
+     * 查询进货数按 year 和 month
+     *
+     * @param year
+     * @param month
+     * @return
+     */
+    List<Map<String, Object>> findStoreData(String year, String month);
+
+    ////////////////结束////订单报表///////////////////
+
+    void saveObj(Object object);
+
 
 }

@@ -238,4 +238,22 @@ public class CommonMethod {
         return time;
     }
 
+
+    /**
+     * 获取季节
+     *
+     * @param month
+     * @return
+     */
+    public static byte getSaleSeason(String month) {
+        if ("04".equals(month) || "05".equals(month) || "06".equals(month)) {
+            return (byte) 2;
+        } else if ("07".equals(month) || "08".equals(month) || "09".equals(month)) {
+            return (byte) 3;
+        } else if ("10".equals(month) || "11".equals(month) || "12".equals(month)) {
+            return (byte) 4;
+        }
+        return (byte) 1;
+    }
+
 }

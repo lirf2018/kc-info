@@ -164,8 +164,20 @@ public class GeneralDaoImpl implements IGeneralDao {
     @Override
     public int save(Object entity) {
         Session session = getSession();
-        return (int) session.save(entity);
+        int id = (int) session.save(entity);
+        return id;
     }
+
+    @Override
+    public int save(Object entity, boolean refresh) {
+        Session session = getSession();
+        int id = (int) session.save(entity);
+        if (refresh) {
+            session.refresh(entity);
+        }
+        return id;
+    }
+
 
     @Override
     public void saveOrUpdate(Object entity) {

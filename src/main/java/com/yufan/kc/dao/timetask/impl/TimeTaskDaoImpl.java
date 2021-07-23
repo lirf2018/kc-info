@@ -18,7 +18,6 @@ import java.util.UUID;
  * 创建时间:  2020/12/20 9:43
  * 功能介绍:
  */
-@Transactional
 @Repository
 public class TimeTaskDaoImpl implements TimeTaskDao {
 
@@ -27,120 +26,118 @@ public class TimeTaskDaoImpl implements TimeTaskDao {
 
     @Override
     public void updateGoodsStore(String goodsCode) {
-        String delTempSql = " delete from tb_temp where tmp_type=1 ";
-        iGeneralDao.executeUpdateForSQL(delTempSql);
-        //
-        String uuid = UUID.randomUUID() + "" + System.currentTimeMillis();
-        uuid = uuid.replace("-", "");
-        // 插入临时表
-        StringBuffer sqlOut = new StringBuffer();
-        sqlOut.append(" INSERT into tb_temp(goods_code,sale_count,uuid_key,tmp_type) (select de.goods_code,count(de.goods_code) as c,'").append(uuid).append("',1 ");
-        sqlOut.append("  from tb_kc_order o JOIN  ");
-        sqlOut.append(" tb_kc_order_detail de on de.order_id=o.order_id ");
-        sqlOut.append(" where o.order_status>0 and de.`status`=1 ");
-        if (StringUtils.isNotEmpty(goodsCode)) {
-            sqlOut.append(" and de.goods_code='").append(goodsCode).append("' ");
+//        String delTempSql = " delete from tb_temp where tmp_type=1 ";
+//        iGeneralDao.executeUpdateForSQL(delTempSql);
+//        //
+//        String uuid = UUID.randomUUID() + "" + System.currentTimeMillis();
+//        uuid = uuid.replace("-", "");
+//        // 插入临时表
+//        StringBuffer sqlOut = new StringBuffer();
+//        sqlOut.append(" INSERT into tb_temp(goods_code,sale_count,uuid_key,tmp_type) (select de.goods_code,count(de.goods_code) as c,'").append(uuid).append("',1 ");
+//        sqlOut.append("  from tb_kc_order o JOIN  ");
+//        sqlOut.append(" tb_kc_order_detail de on de.order_id=o.order_id ");
+//        sqlOut.append(" where o.order_status>0 and de.`status`=1 ");
+//        if (StringUtils.isNotEmpty(goodsCode)) {
+//            sqlOut.append(" and de.goods_code='").append(goodsCode).append("' ");
+//        }
+//        sqlOut.append(" GROUP BY de.goods_code)  ");
+//        iGeneralDao.executeUpdateForSQL(sqlOut.toString());
+//
+//        StringBuffer sql = new StringBuffer();
+//        sql.append(" update tb_kc_goods_store gs join ");
+//        sql.append(" (select count(i.goods_code) as c,i.goods_code from tb_store_inout i where i.income_type=1 and i.`status`=1  ");
+//        if (StringUtils.isNotEmpty(goodsCode)) {
+//            sql.append(" and i.goods_code='").append(goodsCode).append("' ");
+//        }
+//        sql.append(" and i.is_matching=1 GROUP BY ");
+//        sql.append(" i.goods_code) s on s.goods_code=gs.goods_code  JOIN tb_temp t on t.goods_code=gs.goods_code and t.uuid_key='").append(uuid).append("' ");
+//        sql.append(" set gs.store=s.c-t.sale_count,gs.update_type=0,last_update_time=now() ");
+//        iGeneralDao.executeUpdateForSQL(sql.toString());
+    }
+
+    @Override
+    public void delGoodsReportData(String year, String month) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE from tb_goods_sale_month_report where sale_year='").append(year).append("' ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and sale_month='").append(month).append("'  ");
         }
-        sqlOut.append(" GROUP BY de.goods_code)  ");
-        iGeneralDao.executeUpdateForSQL(sqlOut.toString());
+        iGeneralDao.executeUpdateForSQL(sql.toString());
+    }
 
+    @Override
+    public List<Map<String, Object>> findGoodsOrderSaleData(String year, String month) {
         StringBuffer sql = new StringBuffer();
-        sql.append(" update tb_kc_goods_store gs join ");
-        sql.append(" (select count(i.goods_code) as c,i.goods_code from tb_store_inout i where i.income_type=1 and i.`status`=1  ");
-        if (StringUtils.isNotEmpty(goodsCode)) {
-            sql.append(" and i.goods_code='").append(goodsCode).append("' ");
+        sql.append(" SELECT d.goods_code,d.goods_name,d.goods_unit_name,d.unit_count,SUM(d.buy_count) as buy_count,SUM(d.sale_price_true*d.buy_count) as sale_price_all,DATE_FORMAT(o.pay_date,'%m') as pay_date ");
+        sql.append(" from tb_kc_order o JOIN tb_kc_order_detail d on o.order_id = d.order_id ");
+        sql.append(" where 1=1 ");
+        sql.append(" and o.order_status = 1 ");
+        sql.append(" and d.status = 1 ");
+        sql.append(" and DATE_FORMAT(o.pay_date,'%Y') = '").append(year).append("' ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and DATE_FORMAT(o.pay_date,'%m') = '").append(month).append("' ");
         }
-        sql.append(" and i.is_matching=1 GROUP BY ");
-        sql.append(" i.goods_code) s on s.goods_code=gs.goods_code  JOIN tb_temp t on t.goods_code=gs.goods_code and t.uuid_key='").append(uuid).append("' ");
-        sql.append(" set gs.store=s.c-t.sale_count,gs.update_type=0,last_update_time=now() ");
-        iGeneralDao.executeUpdateForSQL(sql.toString());
-    }
-
-    /**
-     * 删除商品报表
-     *
-     */
-    @Override
-    public void deleteGoodsSaleReport() {
-        String sql = " delete from tb_goods_sale_month_report  ";
-        iGeneralDao.executeUpdateForSQL(sql);
+        sql.append(" GROUP BY d.goods_code,DATE_FORMAT(o.pay_date,'%m') ");
+        return iGeneralDao.getBySQLListMap(sql.toString());
     }
 
     @Override
-    public List<Map<String, Object>> findOrderPayDateMonth() {
-        String sql = " select DATE_FORMAT(o.pay_date,'%Y-%m') as pay_month from tb_kc_order o where o.order_status>0 and o.pay_date is not null GROUP BY DATE_FORMAT(o.pay_date,'%Y-%m') ";
-        return iGeneralDao.getBySQLListMap(sql);
-    }
-
-    @Override
-    public void goodsSaleReport(String month) {
-        // 2020-01
+    public List<Map<String, Object>> findStoreInComeData(String year, String month) {
         StringBuffer sql = new StringBuffer();
-        sql.append(" INSERT into tb_goods_sale_month_report(goods_id,goods_code,goods_name,sale_count,sale_price_all,update_time,sale_month,income_price_all,income_count) ");
-        sql.append(" select de.goods_id,de.goods_code,de.goods_name,count(de.goods_code) as c,SUM(de.sale_price_true) as price_all,now(),'").append(month).append("-01',0,0 from tb_kc_order o  ");
-        sql.append(" join tb_kc_order_detail de on de.order_id=o.order_id  ");
-        sql.append(" where o.order_status>0 and de.status=1  ");
-        sql.append(" and  DATE_FORMAT(o.pay_date,'%Y-%m')='").append(month).append("' ");
-        sql.append(" GROUP BY de.goods_code  ");
-        iGeneralDao.executeUpdateForSQL(sql.toString());
-    }
-
-    @Override
-    public void goodsStoreInPriceAll(String month) {
-        // 2020-01
-        StringBuffer sql = new StringBuffer();
-        sql.append(" update tb_goods_sale_month_report gs JOIN ");
-        sql.append(" (select SUM(i.income_price) as income_price_all,i.goods_code,count(i.goods_code) as income_count_all from tb_store_inout i where i.income_type=1 and i.`status`=1  ");
-        sql.append(" and DATE_FORMAT(i.in_time,'%Y-%m')='").append(month).append("' ");
-        sql.append(" GROUP BY i.goods_code) s on s.goods_code= gs.goods_code ");
-        sql.append(" set gs.income_price_all = s.income_price_all,gs.income_count=s.income_count_all ,gs.update_time=NOW() ");
-        sql.append(" where DATE_FORMAT(gs.sale_month,'%Y-%m')='").append(month).append("' ");
-        iGeneralDao.executeUpdateForSQL(sql.toString());
-    }
-
-
-    @Override
-    public void deleteAndInitOrderReport(String year) {
-        StringBuffer sql = new StringBuffer();
-        sql.append(" delete from tb_kc_order_month_report ");
-        sql.append(" where DATE_FORMAT(sale_month,'%Y')='").append(year).append("' ");
-        iGeneralDao.executeUpdateForSQL(sql.toString());
-        // 初始化本年度订单数据
-        for (int i = 1; i <= 12; i++) {
-            String month = year + "-" + i + "-01";
-            String sqlAdd = " INSERT INTO tb_kc_order_month_report(sale_month,order_price_all,update_time,goods_inprice_all) VALUES('" + month + "',0,NOW(),0); ";
-            iGeneralDao.executeUpdateForSQL(sqlAdd);
+        sql.append(" select s.goods_code,s.goods_name,p.param_value as goods_unit_name,s.unit_count,COUNT(s.goods_code) as in_count,SUM(s.income_price) as income_price_all,DATE_FORMAT(s.in_time,'%m') as in_time ");
+        sql.append(" from tb_store_inout s LEFT JOIN tb_param p on p.param_code='goods_unit' and p.`status`=1 and p.param_key=s.goods_unit ");
+        sql.append(" where 1=1 ");
+        sql.append(" and s.income_type = 1 and s.status != 2 ");
+        sql.append(" and DATE_FORMAT(s.in_time,'%Y')='").append(year).append("' ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and DATE_FORMAT(s.in_time,'%m')='").append(month).append("' ");
         }
+        sql.append(" GROUP BY s.goods_code,DATE_FORMAT(s.in_time,'%m') ");
+        return iGeneralDao.getBySQLListMap(sql.toString());
     }
 
     @Override
-    public void orderSaleReport(String year) {
-        // 2020-01
-        StringBuffer sql = new StringBuffer();
-        sql.append(" update tb_kc_order_month_report os join ");
-        sql.append(" (select SUM(o.real_price) as price_all ,DATE_FORMAT(o.pay_date,'%Y-%m') as  pay_date_month from tb_kc_order o where o.order_status>0 ");
-        sql.append(" GROUP BY DATE_FORMAT(o.pay_date,'%Y-%m')) s on s.pay_date_month=DATE_FORMAT(os.sale_month,'%Y-%m') ");
-        sql.append(" set os.order_price_all=s.price_all,os.update_time=now() ");
+    public void delOrderReportData(String year, String month) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" DELETE from tb_kc_order_month_report where sale_year='").append(year).append("' ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and sale_month='").append(month).append("'  ");
+        }
         iGeneralDao.executeUpdateForSQL(sql.toString());
     }
 
     @Override
-    public void goodsInPriceAllOrder(String year) {
-        StringBuffer sql = new StringBuffer();
-        sql.append(" update tb_kc_order_month_report os join ");
-        sql.append(" (select SUM(i.income_price) as income_price_all,DATE_FORMAT(i.in_time,'%Y-%m') as in_time from tb_store_inout i  ");
-        sql.append(" where i.income_type=1 and i.`status`=1 and i.is_matching=1  ");
-        sql.append(" GROUP BY DATE_FORMAT(i.in_time,'%Y-%m')) s on s.in_time=DATE_FORMAT(os.sale_month,'%Y-%m') ");
-        sql.append(" set os.goods_inprice_all=s.income_price_all,os.update_time=now() ");
-
-
-        iGeneralDao.executeUpdateForSQL(sql.toString());
+    public List<Map<String, Object>> findOrderSaleData(String year, String month) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" SELECT SUM(o.real_inpay_price) as sale_price_all,DATE_FORMAT(o.pay_date,'%m') as sale_month  ");
+        sql.append(" from tb_kc_order o  ");
+        sql.append(" where 1=1  ");
+        sql.append(" and o.order_status = 1  ");
+        sql.append(" and DATE_FORMAT(o.pay_date,'%Y') = '").append(year).append("'  ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and DATE_FORMAT(o.pay_date,'%m') = '").append(month).append("'  ");
+        }
+        sql.append(" GROUP BY DATE_FORMAT(o.pay_date,'%m')  ");
+        return iGeneralDao.getBySQLListMap(sql.toString());
     }
 
     @Override
-    public void initGoodsReportStoreData(String year, String month) {
-        // 查询时间的入库数据
+    public List<Map<String, Object>> findStoreData(String year, String month) {
+        StringBuilder sql = new StringBuilder();
+        sql.append(" select SUM(s.income_price) as income_price_all  ,DATE_FORMAT(s.in_time,'%m') as in_month  ");
+        sql.append(" from tb_store_inout s  ");
+        sql.append(" where 1=1  ");
+        sql.append(" and s.income_type = 1 and s.status != 2  ");
+        sql.append(" and DATE_FORMAT(s.in_time,'%Y')='").append(year).append("'  ");
+        if (StringUtils.isNotEmpty(month)) {
+            sql.append(" and DATE_FORMAT(s.in_time,'%m') = '").append(month).append("'  ");
+        }
+        sql.append(" GROUP BY DATE_FORMAT(s.in_time,'%m')  ");
+        return iGeneralDao.getBySQLListMap(sql.toString());
+    }
 
-
+    @Override
+    public void saveObj(Object object) {
+        iGeneralDao.save(object);
     }
 }
