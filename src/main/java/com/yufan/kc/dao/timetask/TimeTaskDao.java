@@ -14,7 +14,7 @@ public interface TimeTaskDao {
     /**
      * 更新商品库存
      */
-    void updateGoodsStore(String goodsCode);
+    void updateGoodsStore();
     ////////////////开始////商品报表///////////////////
 
     /**

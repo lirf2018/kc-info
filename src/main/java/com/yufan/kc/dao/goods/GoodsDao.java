@@ -1,7 +1,7 @@
 package com.yufan.kc.dao.goods;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbKcGoods;
+import com.yufan.kc.pojo.TbKcGoods;
 import com.yufan.utils.PageInfo;
 
 import java.util.Map;

@@ -48,7 +48,10 @@ public class KcOrderDaoImpl implements KcOrderDao {
             sql.append(" and kc.order_status = ").append(conditionCommon.getOrderStatus()).append(" ");
         }
         if (StringUtils.isNotEmpty(conditionCommon.getTableName())) {
-            sql.append(" and kc.table_name =").append(conditionCommon.getTableName()).append(" ");
+            sql.append(" and kc.table_name =").append(conditionCommon.getTableName().trim()).append(" ");
+        }
+        if (StringUtils.isNotEmpty(conditionCommon.getGoodsName())) {
+            sql.append(" and kc.order_id in (select order_id from tb_kc_order_detail where goods_name like '%").append(conditionCommon.getGoodsName().trim()).append("%') ");
         }
         sql.append(" ORDER BY kc.create_time desc ");
 
@@ -66,7 +69,7 @@ public class KcOrderDaoImpl implements KcOrderDao {
         return iGeneralDao.getBySQLListMap(findOrderListSql(orderId));
     }
 
-    public static String findOrderListSql(int orderId){
+    public static String findOrderListSql(int orderId) {
         StringBuffer sql = new StringBuffer();
         sql.append(" select de.detail_id,de.order_id,de.goods_id,de.buy_count,de.goods_code,de.shop_code,de.goods_name,de.sale_price_true, ");
         sql.append(" de.sale_price,de.member_price,de.discounts_price,DATE_FORMAT(de.discounts_end_time,'%Y-%m-%d') as discounts_end_time, ");

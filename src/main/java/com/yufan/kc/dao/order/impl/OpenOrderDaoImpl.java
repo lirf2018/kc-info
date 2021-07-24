@@ -2,9 +2,9 @@ package com.yufan.kc.dao.order.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbKcGoods;
-import com.yufan.kc.bean.TbKcOrder;
-import com.yufan.kc.bean.TbKcOrderDetail;
+import com.yufan.kc.pojo.TbKcGoods;
+import com.yufan.kc.pojo.TbKcOrder;
+import com.yufan.kc.pojo.TbKcOrderDetail;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -13,7 +13,6 @@ import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 

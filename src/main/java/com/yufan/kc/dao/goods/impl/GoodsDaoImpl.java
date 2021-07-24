@@ -2,7 +2,7 @@ package com.yufan.kc.dao.goods.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbKcGoods;
+import com.yufan.kc.pojo.TbKcGoods;
 import com.yufan.kc.dao.goods.GoodsDao;
 import com.yufan.utils.PageInfo;
 import org.apache.commons.lang3.StringUtils;

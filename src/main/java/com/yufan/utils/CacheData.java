@@ -1,6 +1,6 @@
 package com.yufan.utils;
 
-import com.yufan.kc.bean.TbParam;
+import com.yufan.kc.pojo.TbParam;
 
 import java.util.ArrayList;
 import java.util.List;

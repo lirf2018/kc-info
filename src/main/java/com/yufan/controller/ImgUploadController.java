@@ -1,7 +1,7 @@
 package com.yufan.controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.yufan.kc.bean.TbParam;
+import com.yufan.kc.pojo.TbParam;
 import com.yufan.utils.*;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;

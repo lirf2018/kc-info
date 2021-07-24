@@ -1,7 +1,6 @@
 package com.yufan.kc.timetask.impl;
 
-import com.yufan.kc.bean.TbGoodsSaleMonthReport;
-import com.yufan.kc.bean.TbKcOrderMonthReport;
+import com.yufan.kc.pojo.TbGoodsSaleMonthReport;
 import com.yufan.kc.dao.timetask.TimeTaskDao;
 import com.yufan.kc.timetask.IGoodsSaleReport;
 import com.yufan.utils.CommonMethod;
@@ -37,7 +36,7 @@ public class GoodsSaleReportImpl implements IGoodsSaleReport {
     /**
      * 每天执行一次，计算上一天的销售数据
      */
-    @Scheduled(cron = "0 31 1 * * ?")
+    @Scheduled(cron = "0 31 2 * * ?")
     public void goodsStoreInPriceAll() {
         long st = System.currentTimeMillis();
         String now = DatetimeUtil.getNow();
@@ -73,13 +72,15 @@ public class GoodsSaleReportImpl implements IGoodsSaleReport {
             String salePriceAll = saleDataList.get(i).get("sale_price_all").toString();
             initGoodsSaleMonthReport(report, year, payDate);
             //
+            String key = goodsCode + "-" + payDate;
+            //
             report.setGoodsCode(goodsCode);
             report.setGoodsName(goodsName);
             report.setGoodsUnitName(goodsUnitName);
             report.setUnitCount(Integer.parseInt(unitCount));
             report.setSaleCount(Integer.parseInt(buyCount));
             report.setSalePriceAll(new BigDecimal(salePriceAll));
-            dataMap.put(goodsCode, report);
+            dataMap.put(key, report);
         }
         //(3)查询进货数按 year 和 month
         List<Map<String, Object>> incomeDataList = timeTaskDao.findStoreInComeData(year, month);
@@ -91,7 +92,10 @@ public class GoodsSaleReportImpl implements IGoodsSaleReport {
             String unitCount = incomeDataList.get(i).get("unit_count").toString();
             String inCount = incomeDataList.get(i).get("in_count").toString();
             String incomePriceAll = incomeDataList.get(i).get("income_price_all").toString();
-            TbGoodsSaleMonthReport report = dataMap.get(goodsCode);
+            //
+            String key = goodsCode + "-" + inTime;
+            //
+            TbGoodsSaleMonthReport report = dataMap.get(key);
             if (null == report) {
                 report = new TbGoodsSaleMonthReport();
                 initGoodsSaleMonthReport(report, year, inTime);
@@ -102,7 +106,7 @@ public class GoodsSaleReportImpl implements IGoodsSaleReport {
             report.setUnitCount(Integer.parseInt(unitCount));
             report.setIncomeCount(Integer.parseInt(inCount));
             report.setIncomePriceAll(new BigDecimal(incomePriceAll));
-            dataMap.put(goodsCode, report);
+            dataMap.put(key, report);
         }
         //(4)生成报表数据  year 和 month
         for (Map.Entry<String, TbGoodsSaleMonthReport> map : dataMap.entrySet()) {

@@ -1,7 +1,6 @@
 package com.yufan.kc.timetask.impl;
 
-import com.yufan.kc.bean.TbGoodsSaleMonthReport;
-import com.yufan.kc.bean.TbKcOrderMonthReport;
+import com.yufan.kc.pojo.TbKcOrderMonthReport;
 import com.yufan.kc.dao.timetask.TimeTaskDao;
 import com.yufan.kc.timetask.IOrderReport;
 import com.yufan.utils.CommonMethod;

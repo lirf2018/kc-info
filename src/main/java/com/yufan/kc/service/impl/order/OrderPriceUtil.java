@@ -1,9 +1,8 @@
 package com.yufan.kc.service.impl.order;
 
-import com.yufan.kc.bean.TbKcOrder;
-import com.yufan.kc.bean.TbKcOrderDetail;
+import com.yufan.kc.pojo.TbKcOrder;
+import com.yufan.kc.pojo.TbKcOrderDetail;
 import com.yufan.kc.dao.order.OpenOrderDao;
-import com.yufan.kc.service.impl.order.AddOpenOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

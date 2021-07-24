@@ -1,7 +1,7 @@
 package com.yufan.kc.dao.discounts;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbDiscountsConfig;
+import com.yufan.kc.pojo.TbDiscountsConfig;
 import com.yufan.utils.PageInfo;
 
 /**

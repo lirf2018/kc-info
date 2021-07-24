@@ -31,8 +31,11 @@ public class ReportDaoImpl implements ReportDao {
         sql.append("  select s.goods_code,s.goods_name,ifnull(ss.sale_price_all,0) as sale_price_all,ifnull(ss.income_price_all,0) as income_price_all,ifnull(ss.sale_price_all-ss.income_price_all,0) as get_price, ");
         sql.append("  IFNULL(ss.income_count,0) as income_count,ifnull(ss.sale_count,0) as sale_count, ");
         sql.append("  IFNULL(g.status ,-1)  as sale_status ");
-        sql.append("  from (select goods_code,goods_name  from tb_store_inout GROUP BY goods_code) s ");
+        sql.append(" ,IFNULL(ss.unit_count,s.unit_count) as unit_count,IFNULL(ss.goods_unit_name,s.param_value)  as goods_unit_name ");
+        sql.append(" ,IFNULL(gst.store,0) as store_all,IFNULL(gst.store_sale,0) as store_sale_all ");
+        sql.append("  from (select t.goods_code,t.goods_name,t.unit_count,p.param_value  from tb_store_inout t LEFT JOIN tb_param p on p.`status`=1 and p.param_code='goods_unit' and p.param_key=t.unit_count where t.income_type = 1 and t.status != 2 GROUP BY t.goods_code) s ");
         sql.append("  LEFT JOIN tb_kc_goods g on g.goods_code=s.goods_code ");
+        sql.append("  LEFT JOIN tb_kc_goods_store gst on gst.goods_code=s.goods_code ");
         sql.append("  LEFT JOIN ");
         sql.append(" ( ");
         //
@@ -59,6 +62,7 @@ public class ReportDaoImpl implements ReportDao {
 
     private void appendGoodsReportCondition(StringBuffer sql, ConditionCommon conditionCommon) {
         sql.append("  select goods_code,SUM(sale_price_all) as sale_price_all,SUM(income_price_all) as income_price_all,SUM(sale_count) as sale_count,SUM(income_count) as income_count ");
+        sql.append(" ,unit_count,goods_unit_name ");
         sql.append("  from tb_goods_sale_month_report where 1=1 ");
         sql.append("  and sale_year='").append(conditionCommon.getReportYear()).append("' ");
         if ("season".equals(conditionCommon.getReportType())) {

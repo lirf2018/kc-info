@@ -19,40 +19,30 @@ import java.util.UUID;
  * 功能介绍:
  */
 @Repository
+@Transactional
 public class TimeTaskDaoImpl implements TimeTaskDao {
 
     @Autowired
     private IGeneralDao iGeneralDao;
 
     @Override
-    public void updateGoodsStore(String goodsCode) {
-//        String delTempSql = " delete from tb_temp where tmp_type=1 ";
-//        iGeneralDao.executeUpdateForSQL(delTempSql);
-//        //
-//        String uuid = UUID.randomUUID() + "" + System.currentTimeMillis();
-//        uuid = uuid.replace("-", "");
-//        // 插入临时表
-//        StringBuffer sqlOut = new StringBuffer();
-//        sqlOut.append(" INSERT into tb_temp(goods_code,sale_count,uuid_key,tmp_type) (select de.goods_code,count(de.goods_code) as c,'").append(uuid).append("',1 ");
-//        sqlOut.append("  from tb_kc_order o JOIN  ");
-//        sqlOut.append(" tb_kc_order_detail de on de.order_id=o.order_id ");
-//        sqlOut.append(" where o.order_status>0 and de.`status`=1 ");
-//        if (StringUtils.isNotEmpty(goodsCode)) {
-//            sqlOut.append(" and de.goods_code='").append(goodsCode).append("' ");
-//        }
-//        sqlOut.append(" GROUP BY de.goods_code)  ");
-//        iGeneralDao.executeUpdateForSQL(sqlOut.toString());
-//
-//        StringBuffer sql = new StringBuffer();
-//        sql.append(" update tb_kc_goods_store gs join ");
-//        sql.append(" (select count(i.goods_code) as c,i.goods_code from tb_store_inout i where i.income_type=1 and i.`status`=1  ");
-//        if (StringUtils.isNotEmpty(goodsCode)) {
-//            sql.append(" and i.goods_code='").append(goodsCode).append("' ");
-//        }
-//        sql.append(" and i.is_matching=1 GROUP BY ");
-//        sql.append(" i.goods_code) s on s.goods_code=gs.goods_code  JOIN tb_temp t on t.goods_code=gs.goods_code and t.uuid_key='").append(uuid).append("' ");
-//        sql.append(" set gs.store=s.c-t.sale_count,gs.update_type=0,last_update_time=now() ");
-//        iGeneralDao.executeUpdateForSQL(sql.toString());
+    public void updateGoodsStore() {
+        // 清空商品库存数据
+        String delSql = " DELETE from tb_kc_goods_store  ";
+        iGeneralDao.executeUpdateForSQL(delSql);
+        // 初始化数据,并更新库存
+        StringBuilder initSql = new StringBuilder();
+        initSql.append(" INSERT INTO tb_kc_goods_store(goods_code,store,last_update_time) ");
+        initSql.append(" SELECT goods_code,COUNT(goods_code) as c,NOW() from tb_store_inout ");
+        initSql.append(" where income_type = 1 and status != 2 ");
+        initSql.append(" GROUP BY goods_code ");
+        iGeneralDao.executeUpdateForSQL(initSql.toString());
+        // 更新销售数
+        StringBuilder saleSql = new StringBuilder();
+        saleSql.append(" update tb_kc_goods_store gs,  ");
+        saleSql.append(" (SELECT d.goods_code,SUM(d.buy_count) as c FROM tb_kc_order_detail d JOIN tb_kc_order o on o.order_id = d.order_id where d.status = 1 and o.order_status = 1 ");
+        saleSql.append(" GROUP BY d.goods_code) st set gs.store_sale = st.c,gs.last_update_time = NOW() where gs.goods_code = st.goods_code ");
+        iGeneralDao.executeUpdateForSQL(saleSql.toString());
     }
 
     @Override

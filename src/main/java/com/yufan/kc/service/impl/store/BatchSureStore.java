@@ -4,18 +4,11 @@ import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
-import com.yufan.kc.bean.TbStoreInout;
 import com.yufan.kc.dao.store.StoreInOutDao;
-import com.yufan.kc.service.impl.param.GenerateShopCode;
-import com.yufan.utils.Constants;
-import com.yufan.utils.DatetimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import java.sql.Timestamp;
-import java.util.Date;
 
 import static com.yufan.common.bean.ResponeUtil.packagMsg;
 

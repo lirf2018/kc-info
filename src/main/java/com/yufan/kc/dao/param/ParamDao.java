@@ -1,8 +1,8 @@
 package com.yufan.kc.dao.param;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbParam;
-import com.yufan.kc.bean.TbSequence;
+import com.yufan.kc.pojo.TbParam;
+import com.yufan.kc.pojo.TbSequence;
 import com.yufan.utils.PageInfo;
 
 import java.util.List;

@@ -4,16 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
-import com.yufan.kc.bean.TbKcOrder;
-import com.yufan.kc.bean.TbKcOrderDetail;
+import com.yufan.kc.pojo.TbKcOrder;
+import com.yufan.kc.pojo.TbKcOrderDetail;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import com.yufan.utils.Constants;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 import static com.yufan.common.bean.ResponeUtil.packagMsg;

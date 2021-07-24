@@ -2,7 +2,7 @@ package com.yufan.kc.dao.store.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbStoreInout;
+import com.yufan.kc.pojo.TbStoreInout;
 import com.yufan.kc.dao.store.StoreInOutDao;
 import com.yufan.utils.PageInfo;
 import org.apache.commons.collections.CollectionUtils;
@@ -41,7 +41,7 @@ public class StoreInOutDaoImpl implements StoreInOutDao {
         StringBuffer sql = new StringBuffer();
         if (conditionCommon.getSearchType() != null && conditionCommon.getSearchType() == 1) {
             // 相同商品汇总显示
-            sql.append(" select 0 as income_id,ins.supplier_code,ins.goods_code,ins.shop_code,ins.goods_name,ins.goods_unit,CONCAT('≈',round(AVG(ins.income_price),2)) as income_price,count(ins.unit_count) as unit_count,ins.income_type, ");
+            sql.append(" select 0 as income_id,ins.supplier_code,ins.goods_code,ins.shop_code,ins.goods_name,ins.goods_unit,CONCAT('≈',round(AVG(ins.income_price),2)) as income_price,count(ins.goods_code) as unit_count,ins.income_type, ");
         } else {
             sql.append(" select ins.income_id,ins.supplier_code,ins.goods_code,ins.shop_code,ins.goods_name,ins.goods_unit,ins.income_price,ins.unit_count,ins.income_type, ");
         }

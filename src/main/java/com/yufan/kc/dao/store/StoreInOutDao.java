@@ -1,7 +1,7 @@
 package com.yufan.kc.dao.store;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbStoreInout;
+import com.yufan.kc.pojo.TbStoreInout;
 import com.yufan.utils.PageInfo;
 
 import java.util.List;

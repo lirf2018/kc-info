@@ -2,7 +2,7 @@ package com.yufan.kc.dao.classify.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbClassify;
+import com.yufan.kc.pojo.TbClassify;
 import com.yufan.kc.dao.classify.ClassifyDao;
 import com.yufan.utils.PageInfo;
 import org.apache.commons.lang3.StringUtils;

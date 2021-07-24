@@ -2,10 +2,9 @@ package com.yufan.kc.dao.param.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbParam;
-import com.yufan.kc.bean.TbSequence;
+import com.yufan.kc.pojo.TbParam;
+import com.yufan.kc.pojo.TbSequence;
 import com.yufan.kc.dao.param.ParamDao;
-import com.yufan.utils.Constants;
 import com.yufan.utils.PageInfo;
 import io.netty.util.internal.StringUtil;
 import org.springframework.beans.factory.annotation.Autowired;

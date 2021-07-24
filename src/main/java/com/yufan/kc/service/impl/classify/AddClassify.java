@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
-import com.yufan.kc.bean.TbClassify;
+import com.yufan.kc.pojo.TbClassify;
 import com.yufan.kc.dao.classify.ClassifyDao;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

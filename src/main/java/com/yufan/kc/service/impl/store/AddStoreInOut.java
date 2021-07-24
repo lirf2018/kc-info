@@ -4,7 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
-import com.yufan.kc.bean.TbStoreInout;
+import com.yufan.kc.pojo.TbStoreInout;
 import com.yufan.kc.dao.store.StoreInOutDao;
 import com.yufan.kc.service.impl.param.GenerateShopCode;
 import com.yufan.utils.Constants;

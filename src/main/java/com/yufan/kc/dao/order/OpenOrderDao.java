@@ -1,8 +1,8 @@
 package com.yufan.kc.dao.order;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbKcOrder;
-import com.yufan.kc.bean.TbKcOrderDetail;
+import com.yufan.kc.pojo.TbKcOrder;
+import com.yufan.kc.pojo.TbKcOrderDetail;
 
 import java.util.List;
 import java.util.Map;

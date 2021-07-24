@@ -1,6 +1,6 @@
 package com.yufan.common.dao.param;
 
-import com.yufan.kc.bean.TbParam;
+import com.yufan.kc.pojo.TbParam;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;

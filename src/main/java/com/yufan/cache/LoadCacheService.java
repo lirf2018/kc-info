@@ -1,7 +1,7 @@
 package com.yufan.cache;
 
 import com.yufan.common.dao.param.IParamCodeJpaDao;
-import com.yufan.kc.bean.TbParam;
+import com.yufan.kc.pojo.TbParam;
 import com.yufan.utils.CacheData;
 import com.yufan.utils.Constants;
 import org.apache.log4j.Logger;

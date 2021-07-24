@@ -2,7 +2,7 @@ package com.yufan.kc.dao.discounts.impl;
 
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
-import com.yufan.kc.bean.TbDiscountsConfig;
+import com.yufan.kc.pojo.TbDiscountsConfig;
 import com.yufan.kc.dao.discounts.DiscountsDao;
 import com.yufan.utils.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;

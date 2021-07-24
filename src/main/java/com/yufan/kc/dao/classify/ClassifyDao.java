@@ -1,7 +1,7 @@
 package com.yufan.kc.dao.classify;
 
 import com.yufan.common.bean.ConditionCommon;
-import com.yufan.kc.bean.TbClassify;
+import com.yufan.kc.pojo.TbClassify;
 import com.yufan.utils.PageInfo;
 
 import java.util.List;
