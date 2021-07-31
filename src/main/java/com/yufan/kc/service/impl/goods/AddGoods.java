@@ -57,6 +57,9 @@ public class AddGoods implements IResultOut {
                 goods.setDiscountsStartTime(null);
                 goods.setDiscountsEndTime(null);
             }
+            if(goods.getGoodsPy() == null){
+                goods.setGoodsPy("");
+            }
             goods.setGoodsPy(goods.getGoodsPy().toLowerCase());
             if (goods.getGoodsId() == 0) {
                 goods.setCreateTime(new Timestamp(new Date().getTime()));

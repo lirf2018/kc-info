@@ -126,7 +126,7 @@ public class GoodsDaoImpl implements GoodsDao {
 
     private String findGoodsListSQl(ConditionCommon conditionCommon) {
         StringBuffer sql = new StringBuffer();
-        sql.append(" select g.goods_id as id,g.goods_py as goodsPingYin,g.goods_code as goodsCode,g.goods_name as goodsName,g.store,g.store_warning,g.sale_price as goodsSalePrice,g.member_price as memberPrice, ");
+        sql.append(" select g.goods_id as id,g.goods_py as goodsPingYin,g.goods_code as goodsCode,g.goods_name as goodsName,g.store_warning,g.sale_price as goodsSalePrice,g.member_price as memberPrice, ");
         sql.append(" if(g.is_discounts=1,g.discounts_price,g.sale_price) as goodsDiscountsPrice,g.status,g.goods_unit,g.unit_count as unitCount,g.is_discounts,p.param_value as goodsUnitName,IFNULL(tab.buyCount,0)  as buyCount,'mouse-out-goods-ul' as style ");
         sql.append("  from tb_kc_goods g  ");
         sql.append(" left join tb_param p on p.`status`=1 and p.param_code='goods_unit' and p.param_key = g.goods_unit ");

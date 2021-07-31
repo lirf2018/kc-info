@@ -81,6 +81,12 @@ public class ParamDaoImpl implements ParamDao {
     }
 
     @Override
+    public void updateSetGenerateValue(int sequenceType, int sequenceValue) {
+        String sql = "update tb_sequence set sequence_value=" + sequenceValue + " where sequence_type=?";
+        iGeneralDao.executeUpdateForSQL(sql, sequenceType);
+    }
+
+    @Override
     public TbSequence generateValue(int sequenceType) {
         String hql = " from TbSequence where sequenceType=?1 ";
         return iGeneralDao.queryUniqueByHql(hql, sequenceType);

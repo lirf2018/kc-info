@@ -28,6 +28,8 @@ public interface ParamDao {
 
     public void updateGenerateValue(int sequenceType, int count);
 
+    public void updateSetGenerateValue(int sequenceType, int sequenceValue);
+
     public TbSequence generateValue(int sequenceType);
 
     public void resetGenerateValue(int sequenceType);

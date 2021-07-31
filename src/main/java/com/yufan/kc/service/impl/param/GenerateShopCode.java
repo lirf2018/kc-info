@@ -41,17 +41,22 @@ public class GenerateShopCode implements IResultOut {
     }
 
     public synchronized String generate(int sequenceType, int count) {
+        int minValue = 1000;
+        int maxValue = 9998;
         String str = "";
         TbSequence sequence = paramDao.generateValue(sequenceType);
-        paramDao.updateGenerateValue(sequenceType, count);
-        if (null != sequence) {
-            if (sequence.getSequenceValue() > 9998) {
-                // 重置
+        if (count > 1 && (sequence.getSequenceValue() + count) > (maxValue + 1)) {
+            sequence.setSequenceValue(minValue);
+            paramDao.updateSetGenerateValue(sequenceType, minValue + count);
+        } else {
+            paramDao.updateGenerateValue(sequenceType, count);
+            if ((sequence.getSequenceValue() + count) > maxValue) {
+                // 重置 1000
                 paramDao.resetGenerateValue(sequenceType);
             }
-            // 自动生成 18+3
-            str = "AUTO" + DatetimeUtil.getNow("yyyyMMddHHmmss-") + sequence.getSequenceValue();
         }
+        // 自动生成 18+3
+        str = DatetimeUtil.getNow("yyyyMMddHHmmss") + sequence.getSequenceValue();
         return str;
     }
 

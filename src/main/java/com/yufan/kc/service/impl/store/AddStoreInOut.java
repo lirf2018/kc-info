@@ -64,12 +64,13 @@ public class AddStoreInOut implements IResultOut {
                 Date date = DatetimeUtil.convertStrToDate(DatetimeUtil.timeStamp2Date(storeInout.getMakeDay().getTime(), null));
                 storeInout.setEffectToTime(new Timestamp(DatetimeUtil.addDays(date, storeInout.getEffectDay()).getTime()));
             }
-            if (StringUtils.isEmpty(storeInout.getShopCode())) {
+            String shopCodeDate = DatetimeUtil.getNow("yyyyMMdd");
+            if (store == 1 && StringUtils.isEmpty(storeInout.getShopCode())) {
                 String code = generateShopCode.generate(Constants.GENERATE_TYPE, 1);
                 code = Constants.SHOP_CODE_MARK + code;
                 LOG.info("code1=" + code);
                 storeInout.setShopCode(code);
-                storeInout.setShopCodeDate(getShopCodeDate(code));
+                storeInout.setShopCodeDate(shopCodeDate);
             }
             if (storeInout.getIncomeId() > 0) {
                 storeInOutDao.updateStoreInOut(storeInout);
@@ -97,23 +98,23 @@ public class AddStoreInOut implements IResultOut {
                         code = Constants.SHOP_CODE_MARK + code;
                         LOG.info("code2=" + code);
                         storeInout.setShopCode(code);
-                        storeInout.setShopCodeDate(getShopCodeDate(code));
+                        storeInout.setShopCodeDate(shopCodeDate);
                     }
                     storeInout.setIsMatching(isMatching.byteValue());
                     storeInout.setCreateTime(new Timestamp(new Date().getTime()));
                     storeInout.setLastUpdateTime(new Timestamp(new Date().getTime()));
                     storeInOutDao.saveStoreInOut(storeInout);
                 } else {
-                    // 设置商品店铺编号日期 AUTO20201030234738-1008
+                    // 设置商品店铺编号日期 202010302347381008
                     String code = generateShopCode.generate(Constants.GENERATE_TYPE, store);
-                    String pefx = code.split("-")[0];
-                    int endNum = Integer.parseInt(code.split("-")[1]);
+                    String pefx = code.substring(0, code.length() - 4);
+                    int endNum = Integer.parseInt(code.substring(code.length() - 4));
                     for (int i = 0; i < store; i++) {
                         TbStoreInout st = JSONObject.toJavaObject(data, TbStoreInout.class);
                         code = Constants.SHOP_CODE_MARK + pefx + endNum;
                         LOG.info("code3=" + code);
                         st.setShopCode(code);
-                        st.setShopCodeDate(getShopCodeDate(code));
+                        st.setShopCodeDate(shopCodeDate);
                         st.setCreateTime(new Timestamp(new Date().getTime()));
                         st.setIsMatching(isMatching.byteValue());
                         st.setLastUpdateTime(new Timestamp(new Date().getTime()));
@@ -127,10 +128,6 @@ public class AddStoreInOut implements IResultOut {
             LOG.error("-------error----", e);
         }
         return packagMsg(ResultCode.FAIL.getResp_code(), dataJson);
-    }
-
-    public String getShopCodeDate(String code) {
-        return code.substring(5, 13);
     }
 
     @Override
