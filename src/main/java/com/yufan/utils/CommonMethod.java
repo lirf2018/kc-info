@@ -256,4 +256,14 @@ public class CommonMethod {
         return (byte) 1;
     }
 
+    public static String initPreOrderNo(String orderNo) {
+        if (StringUtils.isEmpty(orderNo)) {
+            orderNo = CommonMethod.randomStr("");
+        }
+        Long outTime = DatetimeUtil.addHours(new Date(), Constants.preOrderNoOutTime).getTime();
+        CacheData.preOrderNoMap.put(orderNo, orderNo);
+        CacheData.preOrderNoMapOutTimeMap.put(orderNo, outTime);
+        return orderNo;
+    }
+
 }

@@ -48,6 +48,9 @@ public class GoodsDaoImpl implements GoodsDao {
         if (null != conditionCommon.getStatus()) {
             sql.append(" and g.status=").append(conditionCommon.getStatus()).append(" ");
         }
+        if (StringUtils.isNotEmpty(conditionCommon.getShopCode())) {
+            sql.append(" and g.goods_code = (select goods_code from tb_store_inout where shop_code='").append(conditionCommon.getShopCode().trim()).append("') ");
+        }
         sql.append(" order by g.last_update_time desc ");
         PageInfo pageInfo = new PageInfo();
         pageInfo.setPageSize(conditionCommon.getPageSize() == null ? 20 : conditionCommon.getPageSize());
@@ -157,6 +160,7 @@ public class GoodsDaoImpl implements GoodsDao {
                 sql.append(" and g.is_discounts = ").append(conditionCommon.getIsDiscounts()).append(" ");
             }
         }
+        sql.append(" ORDER BY tab.buyCount desc ");
 
         return sql.toString();
     }
@@ -172,5 +176,15 @@ public class GoodsDaoImpl implements GoodsDao {
         return iGeneralDao.queryUniqueByHql(hql, goodsId);
     }
 
+    @Override
+    public TbKcGoods loadGoods(String goodsCode) {
+        String hql = " from TbKcGoods where goodsCode=?1 ";
+        return iGeneralDao.queryUniqueByHql(hql, goodsCode);
+    }
 
+    @Override
+    public List<TbKcGoods> loadKcGoodsList() {
+        String hql = " from TbKcGoods where status=1 ";
+        return (List<TbKcGoods>) iGeneralDao.queryListByHql(hql, 1);
+    }
 }

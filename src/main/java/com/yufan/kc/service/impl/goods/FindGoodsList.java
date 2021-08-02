@@ -46,9 +46,6 @@ public class FindGoodsList implements IResultOut {
             dataJson.put("goods_list", page.getResultListMap());
             dataJson.put("has_next", page.isHasNext());
             dataJson.put("total_num", page.getRecordSum());
-            // 防止生成多个订单
-            String uniqueKey = UUID.randomUUID().toString()+ CommonMethod.randomStr("");
-            dataJson.put("unique_key", uniqueKey);
             return packagMsg(ResultCode.OK.getResp_code(), dataJson);
         } catch (Exception e) {
             LOG.error("-------error----", e);

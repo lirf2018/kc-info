@@ -60,20 +60,20 @@ public class ImgUploadController {
             //img_save_local
 
             boolean flagLocal = false;
-            List<TbParam> list = CacheData.PARAMLIST;
-            for (int i = 0; i < list.size(); i++) {
-                TbParam param = list.get(i);
-                String code = param.getParamCode();
-                String key = param.getParamKey();
-                String value = param.getParamValue();
-                if (!"sys_code".equals(code)) {
-                    continue;
-                }
-                if ("img_save_local".equals(key) && "1".equals(value)) {
-                    flagLocal = true;
-                    break;
-                }
-            }
+//            List<TbParam> list = CacheData.PARAMLIST;
+//            for (int i = 0; i < list.size(); i++) {
+//                TbParam param = list.get(i);
+//                String code = param.getParamCode();
+//                String key = param.getParamKey();
+//                String value = param.getParamValue();
+//                if (!"sys_code".equals(code)) {
+//                    continue;
+//                }
+//                if ("img_save_local".equals(key) && "1".equals(value)) {
+//                    flagLocal = true;
+//                    break;
+//                }
+//            }
 
             if (flagLocal) {
                 //保存到本地

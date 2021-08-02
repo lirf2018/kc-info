@@ -127,7 +127,11 @@ public enum ResultCode {
     COUPONQR_QOWM_FAIL(10074, "超出限制领取数量"),
     LIMIT_COUPON_RULE(10075, "不满足领取规则"),
     ORDER_STATUS_CANTNOT(10076, "订单数据不存在或者订单状态不满足生成条件"),
-    ORDER_CONDITION_UNCREATE(10077, "当前订单不满足生成条件");
+    ORDER_CONDITION_UNCREATE(10077, "当前订单不满足生成条件"),
+    ORDERNO_OUT_TIME(10078, "订单数据已失效,请重新开单"),
+    ORDER_ISPAY(10079, "订单已支付"),
+    ORDER_DETAIL_ERROR(10080, "订单号与订单详情不匹配"),
+    CHUXIAOTIME_NOT_NULL(10080, "促销时间不能为空");
 
 
     private int resp_code;

@@ -3,6 +3,7 @@ package com.yufan.kc.dao.order.impl;
 import com.yufan.common.bean.ConditionCommon;
 import com.yufan.common.dao.base.IGeneralDao;
 import com.yufan.kc.dao.order.KcOrderDao;
+import com.yufan.kc.pojo.TbKcOrder;
 import com.yufan.utils.PageInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +29,7 @@ public class KcOrderDaoImpl implements KcOrderDao {
     public PageInfo loadOrderListPage(ConditionCommon conditionCommon) {
         StringBuffer sql = new StringBuffer();
         sql.append(" select kc.order_id,kc.order_num,kc.user_id,kc.goods_count,kc.order_price,kc.real_price,kc.discounts_ticket_price,kc.discounts_member_price,kc.discounts_price,kc.discounts_remark, ");
-        sql.append(" kc.pay_method,kc.consume_count,kc.order_status,DATE_FORMAT(kc.create_time,'%Y-%m-%d %T') as create_time,kc.remark,kc.user_phone,kc.member_no,kc.order_source,kc.last_update_time, ");
+        sql.append(" kc.pay_method,kc.order_status,DATE_FORMAT(kc.create_time,'%Y-%m-%d %T') as create_time,kc.remark,kc.user_phone,kc.member_no,kc.order_source,kc.last_update_time, ");
         sql.append(" kc.server_name,kc.person_count,kc.table_name,p1.param_value as order_status_name,p2.param_value as  pay_method_name,false as _expanded ");
         sql.append(" ,kc.real_inpay_price ");
         sql.append(" from tb_kc_order kc  ");
@@ -82,5 +83,11 @@ public class KcOrderDaoImpl implements KcOrderDao {
         sql.append(" where de.order_id=").append(orderId).append(" and de.status=1 ");
         sql.append("  order by de.goods_code,de.last_update_time desc ");
         return sql.toString();
+    }
+
+    @Override
+    public TbKcOrder loadOrder(String orderNo) {
+        String hql = " from TbKcOrder where orderNum = ?1 ";
+        return iGeneralDao.queryUniqueByHql(hql, orderNo);
     }
 }

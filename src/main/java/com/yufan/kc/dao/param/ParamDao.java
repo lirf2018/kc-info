@@ -32,6 +32,6 @@ public interface ParamDao {
 
     public TbSequence generateValue(int sequenceType);
 
-    public void resetGenerateValue(int sequenceType);
+    public void resetGenerateValue(int sequenceType,int minValue);
 
 }

@@ -8,6 +8,7 @@ import com.yufan.kc.pojo.TbKcOrder;
 import com.yufan.kc.pojo.TbKcOrderDetail;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import com.yufan.utils.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -39,13 +40,20 @@ public class DeleteOpenOrderDetailGoods implements IResultOut {
         JSONObject data = receiveJsonBean.getData();
         try {
             Integer detailId = data.getInteger("detail_id");
-            Integer orderId = data.getInteger("order_id");
-            TbKcOrder order = openOrderDao.loadOrder(orderId);
+            String orderNo = data.getString("order_no");
+            // 判断是否属于同一个订单详情
+            boolean flag = openOrderDao.checkOrderDetail(orderNo, detailId);
+            if (!flag) {
+                return packagMsg(ResultCode.ORDER_DETAIL_ERROR.getResp_code(), dataJson);
+            }
+
+            TbKcOrder order = openOrderDao.loadOrder(orderNo);
             // 判断订单是否已支付
             if (order.getOrderStatus().intValue() != Constants.ORDER_STATUS_0) {
                 LOG.info("-------查询订单已付款--------");
                 return packagMsg(ResultCode.ORDER_IS_PAY.getResp_code(), dataJson);
             }
+            int orderId = order.getOrderId();
             openOrderDao.deleteDetailById(detailId);
             orderPriceUtil.resetOrderInfo2(orderId, detailId, order);
             //
@@ -59,14 +67,13 @@ public class DeleteOpenOrderDetailGoods implements IResultOut {
     }
 
 
-
     @Override
     public boolean checkParam(ReceiveJsonBean receiveJsonBean) {
         JSONObject data = receiveJsonBean.getData();
         try {
             Integer detailId = data.getInteger("detail_id");
-            Integer orderId = data.getInteger("order_id");
-            if (null == detailId || detailId == 0 || orderId == null || orderId == 0) {
+            String orderNo = data.getString("order_no");
+            if (null == detailId || detailId == 0 || StringUtils.isEmpty(orderNo)) {
                 return false;
             }
             return true;

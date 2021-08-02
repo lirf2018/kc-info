@@ -35,4 +35,6 @@ public interface OpenOrderDao {
 
     void updateKcOrder(TbKcOrder order);
 
+    boolean checkOrderDetail(String orderNo, int detailId);
+
 }

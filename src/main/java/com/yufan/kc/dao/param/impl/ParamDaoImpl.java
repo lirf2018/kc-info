@@ -93,8 +93,8 @@ public class ParamDaoImpl implements ParamDao {
     }
 
     @Override
-    public void resetGenerateValue(int sequenceType) {
-        String sql = "update tb_sequence set sequence_value=1000 where sequence_type=?";
-        iGeneralDao.executeUpdateForSQL(sql, sequenceType);
+    public void resetGenerateValue(int sequenceType, int minValue) {
+        String sql = "update tb_sequence set sequence_value=? where sequence_type=?";
+        iGeneralDao.executeUpdateForSQL(sql, minValue, sequenceType);
     }
 }

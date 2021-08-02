@@ -19,7 +19,7 @@ import static com.yufan.common.bean.ResponeUtil.packagMsg;
 /**
  * 创建人: lirf
  * 创建时间:  2020/12/11 23:09
- * 功能介绍:
+ * 功能介绍: 订单详情查询
  */
 @Service("find_kc_order_detail")
 public class FindKcOrderDetail implements IResultOut {
@@ -44,6 +44,10 @@ public class FindKcOrderDetail implements IResultOut {
             if (!CollectionUtils.isEmpty(detailList)) {
                 userPhone = null == detailList.get(0).get("user_phone") ? "" : detailList.get(0).get("user_phone").toString();
                 orderStatus = Integer.parseInt(detailList.get(0).get("order_status").toString());
+            }else{
+                dataJson.put("reset_order", true);
+                dataJson.put("detail_list", detailList);
+                return packagMsg(ResultCode.OK.getResp_code(), dataJson);
             }
             boolean resetOrder = false;
             if (orderStatus == Constants.ORDER_STATUS_0) {

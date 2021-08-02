@@ -200,12 +200,23 @@ public class StoreInOutDaoImpl implements StoreInOutDao {
 
     @Override
     public boolean checkGoodsExist(String goodsCode) {
-
         String sql = " select g.goods_id from tb_kc_goods g where g.goods_code=? ";
         List<Map<String, Object>> list = iGeneralDao.getBySQLListMap(sql, goodsCode);
         if (CollectionUtils.isNotEmpty(list) && list.size() > 0) {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public List<TbStoreInout> loadStoreInout() {
+        String hql = " from TbStoreInout where status=1 ";
+        return (List<TbStoreInout>) iGeneralDao.queryListByHql(hql);
+    }
+
+    @Override
+    public TbStoreInout loadStoreInoutByShopCode(String shopCode) {
+        String hql = " from TbStoreInout where shopCode=1? ";
+        return iGeneralDao.queryUniqueByHql(hql, shopCode);
     }
 }

@@ -2,6 +2,7 @@ package com.yufan.kc.service.impl.goods;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
+import com.yufan.utils.DatetimeUtil;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbKcGoods;
@@ -53,16 +54,28 @@ public class AddGoods implements IResultOut {
             if (goods.getIsDiscounts().intValue() == 0 && goods.getSalePrice().compareTo(goods.getDiscountsPrice()) != 0) {
                 return packagMsg(ResultCode.PRICE_ERROR2.getResp_code(), dataJson);
             }
+            if (goods.getIsDiscounts().intValue() == 1 && (goods.getDiscountsStartTime() == null || goods.getDiscountsEndTime() == null)) {
+                return packagMsg(ResultCode.CHUXIAOTIME_NOT_NULL.getResp_code(), dataJson);
+            }
             if (goods.getIsDiscounts().intValue() == 0) {
                 goods.setDiscountsStartTime(null);
                 goods.setDiscountsEndTime(null);
             }
-            if(goods.getGoodsPy() == null){
+            if (goods.getGoodsPy() == null) {
                 goods.setGoodsPy("");
             }
             goods.setGoodsPy(goods.getGoodsPy().toLowerCase());
+            goods.setCreateTime(new Timestamp(new Date().getTime()));
+            // 处理时间
+            if (goods.getIsDiscounts().intValue() == 1) {
+                Timestamp discountsStartTime = goods.getDiscountsStartTime();
+                Timestamp discountsEndTime = goods.getDiscountsEndTime();
+                String sTime = DatetimeUtil.timeStamp2Date(discountsStartTime.getTime(), DatetimeUtil.DEFAULT_DATE_FORMAT) + " 00:00:00";
+                String eTime = DatetimeUtil.timeStamp2Date(discountsEndTime.getTime(), DatetimeUtil.DEFAULT_DATE_FORMAT) + " 23:59:59";
+                goods.setDiscountsStartTime(new Timestamp(DatetimeUtil.convertStrToDate(sTime, DatetimeUtil.DEFAULT_DATE_FORMAT_STRING).getTime()));
+                goods.setDiscountsEndTime(new Timestamp(DatetimeUtil.convertStrToDate(eTime, DatetimeUtil.DEFAULT_DATE_FORMAT_STRING).getTime()));
+            }
             if (goods.getGoodsId() == 0) {
-                goods.setCreateTime(new Timestamp(new Date().getTime()));
                 goodsDao.saveGoods(goods);
             } else {
                 goodsDao.updateGoods(goods);

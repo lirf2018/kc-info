@@ -7,6 +7,7 @@ import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbKcOrder;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import com.yufan.utils.Constants;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,11 +33,11 @@ public class AddOrderTitle implements IResultOut {
         JSONObject dataJson = new JSONObject();
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
+            String orderNo = data.getString("order_no");
             Integer personCount = data.getInteger("person_count");
             String tableName = data.getString("table_name");
             String serverName = data.getString("server_name");
-            TbKcOrder order = openOrderDao.loadOrder(orderId);
+            TbKcOrder order = openOrderDao.loadOrder(orderNo);
             if (null == order) {
                 LOG.info("-------查询订单不存在--------");
                 return packagMsg(ResultCode.OK.getResp_code(), dataJson);
@@ -62,8 +63,8 @@ public class AddOrderTitle implements IResultOut {
     public boolean checkParam(ReceiveJsonBean receiveJsonBean) {
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
-            if (null == orderId || orderId == 0) {
+            String orderNo = data.getString("order_no");
+            if (StringUtils.isEmpty(orderNo)) {
                 return false;
             }
             return true;

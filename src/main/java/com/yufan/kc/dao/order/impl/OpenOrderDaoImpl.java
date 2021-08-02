@@ -100,7 +100,7 @@ public class OpenOrderDaoImpl implements OpenOrderDao {
         sql.append(" and o.order_status = 0 ");
         sql.append(" and de.is_discounts = 1 ");
         sql.append(" and de.`status` = 1 ");
-        sql.append(" and de.discounts_end_time < NOW() ");
+        sql.append(" and DATE_FORMAT(de.discounts_end_time,'%Y-%m-%d') < DATE_FORMAT(NOW(),'%Y-%m-%d') ");
 
         List<Map<String, Object>> list = iGeneralDao.getBySQLListMap(sql.toString());
         if (!CollectionUtils.isEmpty(list)) {
@@ -115,7 +115,7 @@ public class OpenOrderDaoImpl implements OpenOrderDao {
                     BigDecimal salePrice = goods.getSalePrice();
                     // 恢复原价
                     String updateSql = " update tb_kc_order_detail set sale_price_true=?,discounts_price=?,is_discounts=0,discounts_start_time=null,discounts_end_time=null where `status`=1 and detail_id=? ";
-                    iGeneralDao.executeUpdateForSQL(updateSql, salePrice,salePrice, detailId);
+                    iGeneralDao.executeUpdateForSQL(updateSql, salePrice, salePrice, detailId);
                 }
             }
             return true;
@@ -132,5 +132,16 @@ public class OpenOrderDaoImpl implements OpenOrderDao {
     public void updateKcOrder(TbKcOrder order) {
         String sql = " update tb_kc_order set order_price=?,real_price=?,discounts_price=?,discounts_member_price=?,goods_count=? where order_id=? ";
         iGeneralDao.executeUpdateForSQL(sql, order.getOrderPrice(), order.getRealPrice(), order.getDiscountsPrice(), order.getDiscountsMemberPrice(), order.getGoodsCount(), order.getOrderId());
+    }
+
+    @Override
+    public boolean checkOrderDetail(String orderNo, int detailId) {
+
+        String sql = " select o.order_id,o.order_num from tb_kc_order o JOIN tb_kc_order_detail d on d.order_id=o.order_id where o.order_num=? and d.detail_id=? ";
+        List<Map<String, Object>> list = iGeneralDao.getBySQLListMap(sql, orderNo, detailId);
+        if (CollectionUtils.isNotEmpty(list)) {
+            return true;
+        }
+        return false;
     }
 }

@@ -2,6 +2,7 @@ package com.yufan.kc.service.impl.param;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
+import com.yufan.utils.Constants;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbSequence;
@@ -40,9 +41,10 @@ public class GenerateShopCode implements IResultOut {
         return packagMsg(ResultCode.FAIL.getResp_code(), dataJson);
     }
 
+    // 13位数字,与条形码相同
     public synchronized String generate(int sequenceType, int count) {
-        int minValue = 1000;
-        int maxValue = 9998;
+        int minValue = 10000;
+        int maxValue = 99998;
         String str = "";
         TbSequence sequence = paramDao.generateValue(sequenceType);
         if (count > 1 && (sequence.getSequenceValue() + count) > (maxValue + 1)) {
@@ -51,13 +53,13 @@ public class GenerateShopCode implements IResultOut {
         } else {
             paramDao.updateGenerateValue(sequenceType, count);
             if ((sequence.getSequenceValue() + count) > maxValue) {
-                // 重置 1000
-                paramDao.resetGenerateValue(sequenceType);
+                // 重置 10000
+                paramDao.resetGenerateValue(sequenceType, minValue);
             }
         }
-        // 自动生成 18+3
-        str = DatetimeUtil.getNow("yyyyMMddHHmmss") + sequence.getSequenceValue();
-        return str;
+        // 自动生成 8+5位随机数
+        str = DatetimeUtil.getNow("ddHHmmss") + sequence.getSequenceValue();
+        return str.substring(0, 13);
     }
 
     @Override

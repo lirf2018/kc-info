@@ -6,6 +6,7 @@ import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbKcOrder;
 import com.yufan.kc.dao.order.OpenOrderDao;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,12 +35,12 @@ public class UpdateOrderPayStatus implements IResultOut {
         JSONObject dataJson = new JSONObject();
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
             Integer status = data.getInteger("order_status");
             Integer payMethod = data.getInteger("pay_method");
             BigDecimal payPrice = data.getBigDecimal("pay_price");
+            String orderNo = data.getString("order_no");
             //
-            TbKcOrder order = openOrderDao.loadOrder(orderId);
+            TbKcOrder order = openOrderDao.loadOrder(orderNo);
             if (null == order) {
                 LOG.info("-------查询订单不存在--------");
                 return packagMsg(ResultCode.ORDER_NOT_EXIST.getResp_code(), dataJson);
@@ -63,11 +64,11 @@ public class UpdateOrderPayStatus implements IResultOut {
     public boolean checkParam(ReceiveJsonBean receiveJsonBean) {
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
             Integer status = data.getInteger("order_status");
             Integer payMethod = data.getInteger("pay_method");
             BigDecimal payPrice = data.getBigDecimal("pay_price");
-            if (null == orderId || orderId == 0 || null == status || status == 0 || payPrice == null || payMethod == null) {
+            String orderNo = data.getString("order_no");
+            if (null == status || status == 0 || payPrice == null || payMethod == null || StringUtils.isEmpty(orderNo)) {
                 return false;
             }
             return true;

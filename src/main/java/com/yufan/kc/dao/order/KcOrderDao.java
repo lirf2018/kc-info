@@ -1,6 +1,7 @@
 package com.yufan.kc.dao.order;
 
 import com.yufan.common.bean.ConditionCommon;
+import com.yufan.kc.pojo.TbKcOrder;
 import com.yufan.utils.PageInfo;
 
 import java.util.List;
@@ -16,5 +17,7 @@ public interface KcOrderDao {
     public PageInfo loadOrderListPage(ConditionCommon conditionCommon);
 
     List<Map<String, Object>> findOrderList(int orderId);
+
+    TbKcOrder loadOrder(String orderNo);
 
 }

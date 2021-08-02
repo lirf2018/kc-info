@@ -24,7 +24,6 @@ public class TbKcOrder {
     private BigDecimal discountsPrice;
     private String discountsRemark;
     private Byte payMethod;
-    private Integer consumeCount;
     private Byte orderStatus;
     private Timestamp createTime;
     private String remark;
@@ -147,16 +146,6 @@ public class TbKcOrder {
 
     public void setPayMethod(Byte payMethod) {
         this.payMethod = payMethod;
-    }
-
-    @Basic
-    @Column(name = "consume_count", nullable = true)
-    public Integer getConsumeCount() {
-        return consumeCount;
-    }
-
-    public void setConsumeCount(Integer consumeCount) {
-        this.consumeCount = consumeCount;
     }
 
     @Basic
@@ -295,7 +284,6 @@ public class TbKcOrder {
                 Objects.equals(discountsPrice, order.discountsPrice) &&
                 Objects.equals(discountsRemark, order.discountsRemark) &&
                 Objects.equals(payMethod, order.payMethod) &&
-                Objects.equals(consumeCount, order.consumeCount) &&
                 Objects.equals(orderStatus, order.orderStatus) &&
                 Objects.equals(createTime, order.createTime) &&
                 Objects.equals(remark, order.remark) &&
@@ -312,6 +300,6 @@ public class TbKcOrder {
 
     @Override
     public int hashCode() {
-        return Objects.hash(orderId, orderNum, userId, goodsCount, orderPrice, realPrice, discountsTicketPrice, discountsMemberPrice, discountsPrice, discountsRemark, payMethod, consumeCount, orderStatus, createTime, remark, userPhone, memberNo, orderSource, lastUpdateTime, serverName, personCount, tableName, payDate,realInpayPrice);
+        return Objects.hash(orderId, orderNum, userId, goodsCount, orderPrice, realPrice, discountsTicketPrice, discountsMemberPrice, discountsPrice, discountsRemark, payMethod, orderStatus, createTime, remark, userPhone, memberNo, orderSource, lastUpdateTime, serverName, personCount, tableName, payDate,realInpayPrice);
     }
 }

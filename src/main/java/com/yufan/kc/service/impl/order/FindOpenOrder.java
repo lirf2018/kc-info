@@ -8,6 +8,7 @@ import com.yufan.common.service.IResultOut;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import com.yufan.utils.CommonMethod;
 import com.yufan.utils.Constants;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,6 @@ public class FindOpenOrder implements IResultOut {
         JSONObject data = receiveJsonBean.getData();
         try {
             ConditionCommon conditionCommon = JSONObject.toJavaObject(data, ConditionCommon.class);
-
             Map<String, Map<String, Object>> maps = new HashMap<>();
             List<Map<String, Object>> list = openOrderDao.findOrderDetailList(conditionCommon);
             for (int i = 0; i < list.size(); i++) {
@@ -50,7 +50,7 @@ public class FindOpenOrder implements IResultOut {
             if (null != list && list.size() > 0) {
                 // 清除失效的订单详情
                 int orderId = Integer.parseInt(list.get(0).get("orderId").toString());
-                String userPhone = list.get(0).get("user_phone") == null ?"" : list.get(0).get("user_phone").toString();
+                String userPhone = list.get(0).get("user_phone") == null ? "" : list.get(0).get("user_phone").toString();
                 boolean flag = openOrderDao.updateOutTimeDetail(orderId, null);
                 if (flag) {
                     // 重新计算订单商品价格
@@ -88,7 +88,7 @@ public class FindOpenOrder implements IResultOut {
                 orderMap.put("orderStatusName", Constants.MAP_NAME.get("orderStatus" + orderInfo.get("orderStatus")));
                 orderMap.put("payMethodName", Constants.MAP_NAME.get("payType" + orderInfo.get("payMethod")));
                 orderMap.put("lastUpdateTime", orderInfo.get("lastUpdateTime"));
-                orderMap.put("realInpayPrice",orderInfo.get("realInpayPrice"));
+                orderMap.put("realInpayPrice", orderInfo.get("realInpayPrice"));
                 orderMap.put("style", "mouse-out-goods-ul");
                 List<Map<String, Object>> orderDetailList = new ArrayList<>();
                 for (int i = 0; i < list.size(); i++) {
@@ -114,9 +114,10 @@ public class FindOpenOrder implements IResultOut {
                 orderMap.put("detail_list", orderDetailList);
                 orderList.add(orderMap);
             }
-            // 防止生成多个订单
-            String uniqueKey = UUID.randomUUID().toString() + CommonMethod.randomStr("");
-            dataJson.put("unique_key", uniqueKey);
+            if (CollectionUtils.isNotEmpty(orderList) && orderList.size() == 1) {
+                String orderNo = orderList.get(0).get("orderNum").toString();
+                CommonMethod.initPreOrderNo(orderNo);
+            }
             dataJson.put("order_list", orderList);
             return packagMsg(ResultCode.OK.getResp_code(), dataJson);
         } catch (Exception e) {

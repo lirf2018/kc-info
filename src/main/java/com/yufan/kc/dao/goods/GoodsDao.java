@@ -4,6 +4,7 @@ import com.yufan.common.bean.ConditionCommon;
 import com.yufan.kc.pojo.TbKcGoods;
 import com.yufan.utils.PageInfo;
 
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -28,10 +29,14 @@ public interface GoodsDao {
 
     boolean checkGoods(String goodsCode);
 
-    Map<String,Object> findOpenOrderGoodsOne(ConditionCommon conditionCommon);
+    Map<String, Object> findOpenOrderGoodsOne(ConditionCommon conditionCommon);
 
     TbKcGoods loadGoods(int goodsId);
 
+    TbKcGoods loadGoods(String goodsCode);
+
     PageInfo loadGoodsListPage(ConditionCommon conditionCommon);
+
+    List<TbKcGoods> loadKcGoodsList();
 
 }

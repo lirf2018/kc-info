@@ -2,7 +2,9 @@ package com.yufan.kc.service.impl.order;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
-import com.yufan.utils.ResultCode;
+import com.yufan.kc.dao.order.KcOrderDao;
+import com.yufan.kc.pojo.TbStoreInout;
+import com.yufan.utils.*;
 import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbKcGoods;
 import com.yufan.kc.pojo.TbKcOrder;
@@ -10,9 +12,6 @@ import com.yufan.kc.pojo.TbKcOrderDetail;
 import com.yufan.kc.dao.goods.GoodsDao;
 import com.yufan.kc.dao.order.OpenOrderDao;
 import com.yufan.kc.dao.store.StoreInOutDao;
-import com.yufan.utils.CommonMethod;
-import com.yufan.utils.Constants;
-import com.yufan.utils.DatetimeUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,29 +44,45 @@ public class AddOpenOrder implements IResultOut {
     @Autowired
     private StoreInOutDao storeInOutDao;
 
+    @Autowired
+    private KcOrderDao kcOrderDao;
+
     @Override
     public String getResult(ReceiveJsonBean receiveJsonBean) {
         JSONObject dataJson = new JSONObject();
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer goodsId = data.getInteger("goods_id");
-            String userPhone = data.getString("user_phone");//手机号(先不做会员)
-            // 检验是否是会员,如果不是会员,则手机号不能有值
-            if (StringUtils.isNotEmpty(userPhone)) {
-                boolean isMember = false;
-                if (!isMember) {
-                    return packagMsg(ResultCode.MEMBER_NOT_EXIST.getResp_code(), dataJson);
+            Integer goodsId = data.getInteger("goods_id");// 商品id
+            String goodsCode = data.getString("goods_code");// 商品条形码
+            String orderNo = data.getString("order_no");
+            // 判断是否预生成订单号成功
+            if (CacheData.preOrderNoMap.get(orderNo) == null) {
+                return packagMsg(ResultCode.ORDERNO_OUT_TIME.getResp_code(), dataJson);
+            }
+            //
+            TbKcGoods goods = null;
+            if (goodsId != null) {
+                goods = goodsDao.loadGoods(goodsId);
+            } else {
+                goods = goodsDao.loadGoods(goodsCode);
+                if (goods == null) {
+                    // 通过店铺码查询
+                    String goodsCode_ = CacheData.shopGoodsCodeMap.get(goodsCode);
+                    if (StringUtils.isEmpty(goodsCode_)) {
+                        LOG.info("--------缓存查询goodsCode不存在--直接查询数按库----");
+                        TbStoreInout storeInout = storeInOutDao.loadStoreInoutByShopCode(goodsCode);
+                        if (null == storeInout) {
+                            LOG.info("--------查询不存在------shopCode:" + goodsCode);
+                            return packagMsg(ResultCode.GOODS_NOT_SALE.getResp_code(), dataJson);
+                        }
+                        goodsCode_ = storeInout.getGoodsCode();
+                    }
+                    goods = goodsDao.loadGoods(goodsCode_);
+                    //
+                    data.put("shop_no", goodsCode);
                 }
             }
-            //
-            String shopNo = data.getString("shop_no");
-            if (StringUtils.isNotEmpty(shopNo) && !getLockGoods(shopNo)) {
-                LOG.info("-----商品添加过快-----shopNo=" + shopNo);
-                return packagMsg(ResultCode.ADD_TO_FAST.getResp_code(), dataJson);
-            }
-            //
-            TbKcGoods goods = goodsDao.loadGoods(goodsId);
-            if (null == goods) {
+            if (null == goods || goods.getStatus().intValue() != 1) {
                 LOG.info("-----------商品不存在或者已下架----goodsId=" + goodsId);
                 return packagMsg(ResultCode.GOODS_NOT_SALE.getResp_code(), dataJson);
             }
@@ -80,27 +95,6 @@ public class AddOpenOrder implements IResultOut {
     }
 
     /**
-     * 控制添加商品速度(判断是否过期)
-     */
-    public synchronized boolean getLockGoods(String shopNo) {
-        long now = System.currentTimeMillis() / 1000;// 秒
-        LOG.info("-----------getLockGoods------------" + now);
-        Long time = Constants.MAP_GOODS_CODE_LOCK.get(shopNo);
-        if (null == time) {
-            Constants.MAP_GOODS_CODE_LOCK.put(shopNo, now);
-            return true;
-        }
-        int outTime = 2;// 过期时间2s
-        // 判断是否过期
-        if (now - time.longValue() > outTime) {
-            // 已过期
-            Constants.MAP_GOODS_CODE_LOCK.put(shopNo, now);
-            return true;
-        }
-        return false;
-    }
-
-    /**
      * 促销折扣总价 = 订单总价格-促销总价
      * 会员折扣总价 = 订单总价格-会员总价
      * 促销折扣总价 = 订单总价格-促销总价
@@ -108,11 +102,11 @@ public class AddOpenOrder implements IResultOut {
     public synchronized String createOrder(JSONObject data, TbKcGoods goods) {
         LOG.info("-------createOrder------");
         JSONObject dataJson = new JSONObject();
+        // 校验订单
+        String orderNo = data.getString("order_no");
+        TbKcOrder order = kcOrderDao.loadOrder(orderNo.trim());
+        //
         String shopNo = data.getString("shop_no");
-        if (shopNo == null || !shopNo.startsWith("AUTO")) {
-            //店铺码
-            shopNo = "";
-        }
         // 判断促销是否有过期
         int isDiscounts = goods.getIsDiscounts();
         if (isDiscounts == 1) {
@@ -133,12 +127,9 @@ public class AddOpenOrder implements IResultOut {
                 goods.setDiscountsPrice(goods.getSalePrice());
             }
         }
-        String uniqueKey = data.getString("unique_key");
-        String orderNo = data.getString("order_no");
         String userPhone = data.getString("user_phone");//手机号(先不做会员)
         String goodsUnitName = data.getString("goods_unit_name");
         String discountsRemark = data.getString("discounts_remark");
-        Integer consumeCount = data.containsKey("consume_count") ? data.getInteger("consume_count") : 0;
         //
         String serverName = data.getString("server_name");
         Integer personCount = data.getInteger("person_count");
@@ -167,44 +158,10 @@ public class AddOpenOrder implements IResultOut {
         detail.setLastUpdateTime(dateTime);
         detail.setGoodsUnitName(goodsUnitName);
         detail.setStatus(1);
-        TbKcOrder order = new TbKcOrder();
-        LOG.info("-------log-----------缓存订单号数---------" + Constants.ORDER_NO_KEY_MAP.size());
-        if (StringUtils.isEmpty(orderNo)) {
+
+        if (order == null) {
             // 生成新订单
-            //生成新订单号
-            orderNo = Constants.ORDER_NO_KEY_MAP.get(uniqueKey);
-            if (StringUtils.isEmpty(orderNo)) {
-                orderNo = CommonMethod.randomStr("");
-                LOG.info("------log-----生成新订单号------orderNo=" + orderNo);
-                Constants.ORDER_NO_KEY_MAP.put(uniqueKey, orderNo);
-            } else {
-                //订单已存在
-                order = openOrderDao.loadOrder(orderNo);
-                if (null == order) {
-                    LOG.info("-------查询订单不存在--------");
-                    return packagMsg(ResultCode.ORDER_NOT_EXIST.getResp_code(), dataJson);
-                }
-                // 判断订单是否已支付
-                if (order.getOrderStatus().intValue() != Constants.ORDER_STATUS_0) {
-                    LOG.info("-------查询订单已付款--------");
-                    return packagMsg(ResultCode.ORDER_IS_PAY.getResp_code(), dataJson);
-                }
-
-                // 检验所有订单商品的店铺编码是否已存在(保证一个出库)
-                if (StringUtils.isNotEmpty(shopNo) && shopNo.length() != 13) {
-                    boolean flag = storeInOutDao.checkShopNoOut(shopNo);
-                    if (flag) {
-                        // 订单详情中商品店铺编码已存在
-                        LOG.info("-------订单详情中商品店铺编码已存在----shopNo=" + shopNo);
-                        return packagMsg(ResultCode.ORDER_SHOPCODE_EXIST.getResp_code(), dataJson);
-                    }
-                }
-                updateOrder(uniqueKey, orderNo, userPhone, discountsRemark, dateTime, discountsTicketPrice, detail, order, 0);
-
-                dataJson.put("order_no", orderNo);
-                dataJson.put("order_id", order.getOrderId());
-                return packagMsg(ResultCode.OK.getResp_code(), dataJson);
-            }
+            order = new TbKcOrder();
             BigDecimal orderPrice = BigDecimal.ZERO;
             BigDecimal realPrice = BigDecimal.ZERO;
             BigDecimal discountsMemberPrice = BigDecimal.ZERO;
@@ -227,7 +184,6 @@ public class AddOpenOrder implements IResultOut {
             order.setDiscountsPrice(discountsPrice);
             order.setDiscountsRemark(discountsRemark);
             order.setPayMethod(null);
-            order.setConsumeCount(consumeCount);
             order.setOrderStatus(new Byte(String.valueOf(Constants.ORDER_STATUS_0)));
             order.setCreateTime(dateTime);
             order.setLastUpdateTime(dateTime);
@@ -244,11 +200,6 @@ public class AddOpenOrder implements IResultOut {
             openOrderDao.saveObj(detail);
         } else {
             //订单已存在
-            order = openOrderDao.loadOrder(orderNo);
-            if (null == order) {
-                LOG.info("-------查询订单不存在--------");
-                return packagMsg(ResultCode.ORDER_NOT_EXIST.getResp_code(), dataJson);
-            }
             // 判断订单是否已支付
             if (order.getOrderStatus().intValue() != Constants.ORDER_STATUS_0) {
                 LOG.info("-------查询订单已付款--------");
@@ -256,22 +207,22 @@ public class AddOpenOrder implements IResultOut {
             }
 
             // 检验所有订单商品的店铺编码是否已存在(保证一个出库)
-            if (StringUtils.isNotEmpty(shopNo) && shopNo.length() != 13) {
-                boolean flag = storeInOutDao.checkShopNoOut(shopNo);
-                if (flag) {
-                    // 订单详情中商品店铺编码已存在
-                    LOG.info("-------订单详情中商品店铺编码已存在----shopNo=" + shopNo);
-                    return packagMsg(ResultCode.ORDER_SHOPCODE_EXIST.getResp_code(), dataJson);
-                }
-            }
-            updateOrder(uniqueKey, orderNo, userPhone, discountsRemark, dateTime, discountsTicketPrice, detail, order, 1);
+//            if (StringUtils.isNotEmpty(shopNo) && shopNo.length() != 13) {
+//                boolean flag = storeInOutDao.checkShopNoOut(shopNo);
+//                if (flag) {
+//                    // 订单详情中商品店铺编码已存在
+//                    LOG.info("-------订单详情中商品店铺编码已存在----shopNo=" + shopNo);
+//                    return packagMsg(ResultCode.ORDER_SHOPCODE_EXIST.getResp_code(), dataJson);
+//                }
+//            }
+            updateOrder(orderNo, userPhone, discountsRemark, dateTime, discountsTicketPrice, detail, order);
         }
         dataJson.put("order_no", orderNo);
         dataJson.put("order_id", order.getOrderId());
         return packagMsg(ResultCode.OK.getResp_code(), dataJson);
     }
 
-    private void updateOrder(String uniqueKey, String orderNo, String userPhone, String discountsRemark, Timestamp dateTime, BigDecimal discountsTicketPrice, TbKcOrderDetail detail, TbKcOrder order, int type) {
+    private void updateOrder(String orderNo, String userPhone, String discountsRemark, Timestamp dateTime, BigDecimal discountsTicketPrice, TbKcOrderDetail detail, TbKcOrder order) {
         // 计算订单价格
         Integer goodsCount = order.getGoodsCount() + 1;
         BigDecimal orderPriceAll = BigDecimal.ZERO;//订单总金额
@@ -325,11 +276,6 @@ public class AddOpenOrder implements IResultOut {
                 openOrderDao.updateObj(de);
             }
         }
-        // 清除缓存订单号
-        if (type == 1) {
-            Constants.ORDER_NO_KEY_MAP.remove(uniqueKey, orderNo);
-        }
-
     }
 
     public static BigDecimal getSalePriceTrue(int isDiscounts, BigDecimal salePrice, BigDecimal memberPrice, BigDecimal discountsPrice, String memberNum) {
@@ -352,8 +298,9 @@ public class AddOpenOrder implements IResultOut {
         JSONObject data = receiveJsonBean.getData();
         try {
             Integer goodsId = data.getInteger("goods_id");
-            String uniqueKey = data.getString("unique_key");
-            if (null == goodsId || goodsId == 0 || StringUtils.isEmpty(uniqueKey)) {
+            String goodsCode = data.getString("goods_code");// 商品条形码
+            String orderNo = data.getString("order_no");
+            if ((goodsId == null && StringUtils.isEmpty(goodsCode)) || StringUtils.isEmpty(orderNo)) {
                 return false;
             }
             return true;

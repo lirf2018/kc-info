@@ -35,12 +35,12 @@ public class ResetOrderPay implements IResultOut {
         JSONObject dataJson = new JSONObject();
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
             String orderPass = data.getString("order_pass");
-            if(!Constants.RESET_ORER_PASSWD.equals(orderPass)){
+            String orderNo = data.getString("order_no");
+            if (!Constants.RESET_ORER_PASSWD.equals(orderPass)) {
                 return packagMsg(ResultCode.PASS_FAIL_1.getResp_code(), dataJson);
             }
-            TbKcOrder order = openOrderDao.loadOrder(orderId);
+            TbKcOrder order = openOrderDao.loadOrder(orderNo);
             if (null == order) {
                 LOG.info("-------查询订单不存在--------");
                 return packagMsg(ResultCode.ORDER_NOT_EXIST.getResp_code(), dataJson);
@@ -62,9 +62,9 @@ public class ResetOrderPay implements IResultOut {
     public boolean checkParam(ReceiveJsonBean receiveJsonBean) {
         JSONObject data = receiveJsonBean.getData();
         try {
-            Integer orderId = data.getInteger("order_id");
             String orderPass = data.getString("order_pass");
-            if (null == orderId || orderId == 0 || StringUtils.isEmpty(orderPass)) {
+            String orderNo = data.getString("order_no");
+            if (StringUtils.isEmpty(orderPass) || StringUtils.isEmpty(orderNo)) {
                 return false;
             }
             return true;

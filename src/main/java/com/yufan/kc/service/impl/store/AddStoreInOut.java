@@ -2,6 +2,7 @@ package com.yufan.kc.service.impl.store;
 
 import com.alibaba.fastjson.JSONObject;
 import com.yufan.common.bean.ReceiveJsonBean;
+import com.yufan.utils.CacheData;
 import com.yufan.utils.ResultCode;
 import com.yufan.common.service.IResultOut;
 import com.yufan.kc.pojo.TbStoreInout;
@@ -67,7 +68,6 @@ public class AddStoreInOut implements IResultOut {
             String shopCodeDate = DatetimeUtil.getNow("yyyyMMdd");
             if (store == 1 && StringUtils.isEmpty(storeInout.getShopCode())) {
                 String code = generateShopCode.generate(Constants.GENERATE_TYPE, 1);
-                code = Constants.SHOP_CODE_MARK + code;
                 LOG.info("code1=" + code);
                 storeInout.setShopCode(code);
                 storeInout.setShopCodeDate(shopCodeDate);
@@ -95,7 +95,6 @@ public class AddStoreInOut implements IResultOut {
                 if (store == 1) {
                     if (StringUtils.isEmpty(storeInout.getShopCode())) {
                         String code = generateShopCode.generate(Constants.GENERATE_TYPE, 1);
-                        code = Constants.SHOP_CODE_MARK + code;
                         LOG.info("code2=" + code);
                         storeInout.setShopCode(code);
                         storeInout.setShopCodeDate(shopCodeDate);
@@ -104,14 +103,16 @@ public class AddStoreInOut implements IResultOut {
                     storeInout.setCreateTime(new Timestamp(new Date().getTime()));
                     storeInout.setLastUpdateTime(new Timestamp(new Date().getTime()));
                     storeInOutDao.saveStoreInOut(storeInout);
+                    //
+                    CacheData.shopGoodsCodeMap.put(storeInout.getShopCode(), storeInout.getGoodsCode());
                 } else {
-                    // 设置商品店铺编号日期 202010302347381008
+                    // 设置商品店铺编号13位  080112352121112
                     String code = generateShopCode.generate(Constants.GENERATE_TYPE, store);
-                    String pefx = code.substring(0, code.length() - 4);
-                    int endNum = Integer.parseInt(code.substring(code.length() - 4));
+                    String pefx = code.substring(0, 8);
+                    int endNum = Integer.parseInt(code.substring(8, 13));
                     for (int i = 0; i < store; i++) {
                         TbStoreInout st = JSONObject.toJavaObject(data, TbStoreInout.class);
-                        code = Constants.SHOP_CODE_MARK + pefx + endNum;
+                        code = pefx + endNum;
                         LOG.info("code3=" + code);
                         st.setShopCode(code);
                         st.setShopCodeDate(shopCodeDate);
@@ -120,6 +121,7 @@ public class AddStoreInOut implements IResultOut {
                         st.setLastUpdateTime(new Timestamp(new Date().getTime()));
                         storeInOutDao.saveStoreInOut(st);
                         endNum++;
+                        CacheData.shopGoodsCodeMap.put(st.getShopCode(), st.getGoodsCode());
                     }
                 }
             }

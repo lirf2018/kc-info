@@ -186,17 +186,6 @@ public class Constants {
     public static int GENERATE_TYPE = 1;//
 
     /**
-     * 店铺号前缀
-     */
-    public static String SHOP_CODE_MARK = "";
-
-    /**
-     * 控制生成唯一订单
-     */
-    // String uniqueKey = data.getString("unique_key");
-    public static Map<String, String> ORDER_NO_KEY_MAP = new HashMap<>();
-
-    /**
      * 支付方式 0现金付款1微信2支付宝3账户余额
      */
     public static int PAY_TYPE_0 = 0;
@@ -288,5 +277,10 @@ public class Constants {
      * 业务类型
      */
     public static String BUSINESS_TYPE_1 = "change_qr_code";// 优惠券兑换
+
+    /**
+     * 预生成订单号过期时间/小时
+     */
+    public static int preOrderNoOutTime = 12;
 
 }

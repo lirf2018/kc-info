@@ -1,6 +1,7 @@
 package com.yufan.kc.dao.store;
 
 import com.yufan.common.bean.ConditionCommon;
+import com.yufan.kc.pojo.TbKcGoodsStore;
 import com.yufan.kc.pojo.TbStoreInout;
 import com.yufan.utils.PageInfo;
 
@@ -21,6 +22,7 @@ public interface StoreInOutDao {
     void deleteStoreInOut(int id);
 
     void updateStoreInOut(TbStoreInout storeInout);
+
     void updateStoreInOutSync(TbStoreInout storeInout);
 
     Map<String, Object> findStoreInOutInfo(ConditionCommon conditionCommon);
@@ -30,7 +32,9 @@ public interface StoreInOutDao {
     void batchSureStore(String incomeIds, Integer incomeType);
 
     void updateStoreMatching(String goodsCode, int matching);
+
     void updateStoreMatching(int incomeId, int matching);
+
     void updateStoreMatching2(String goodsIds, int matching);
 
     Map<String, Object> findOneStoreByGoodsCode(String goodsCode);
@@ -40,5 +44,9 @@ public interface StoreInOutDao {
     void deleteGoods(int inoutId);
 
     boolean checkGoodsExist(String goodsCode);
+
+    List<TbStoreInout> loadStoreInout();
+
+    TbStoreInout loadStoreInoutByShopCode(String shopCode);
 
 }
